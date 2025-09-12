@@ -1,0 +1,356 @@
+---
+title: 'Agent Integration'
+description: 'Integrate AgentMind with popular AI agent frameworks'
+icon: 'robot'
+---
+
+## Overview
+
+AgentMind is designed to work seamlessly with any AI agent framework. This guide shows how to integrate memory capabilities with popular frameworks.
+
+## LangChain Integration
+
+### As a Tool
+
+```python
+from langchain.tools import Tool
+from agentmind import Memory
+
+# Initialize memory
+memory = Memory(api_key="am_live_YOUR_API_KEY")
+
+# Create LangChain tools
+remember_tool = Tool(
+    name="Remember",
+    func=lambda x: memory.remember(x),
+    description="Store important information for later retrieval"
+)
+
+recall_tool = Tool(
+    name="Recall",
+    func=lambda x: memory.recall(x, limit=5),
+    description="Search and retrieve relevant memories"
+)
+
+# Add to agent
+from langchain.agents import initialize_agent
+
+agent = initialize_agent(
+    tools=[remember_tool, recall_tool],
+    llm=your_llm,
+    agent="zero-shot-react-description"
+)
+```
+
+### Custom Memory Class
+
+```python
+from langchain.memory import BaseMemory
+from agentmind import Memory
+
+class AgentMindMemory(BaseMemory):
+    def __init__(self, api_key: str, user_id: str = None):
+        self.memory = Memory(api_key=api_key)
+        self.user_id = user_id
+        self.memories = []
+    
+    def save_context(self, inputs: dict, outputs: dict):
+        # Store conversation context
+        context = {
+            "input": inputs.get("input"),
+            "output": outputs.get("output"),
+            "timestamp": datetime.now().isoformat()
+        }
+        self.memory.remember(context, metadata={"user_id": self.user_id})
+    
+    def load_memory_variables(self, inputs: dict):
+        # Load relevant context
+        query = inputs.get("input", "")
+        relevant_memories = self.memory.recall(query, limit=3)
+        return {"history": relevant_memories}
+```
+
+## OpenAI Function Calling
+
+```python
+import openai
+from agentmind import Memory
+
+memory = Memory(api_key="am_live_YOUR_API_KEY")
+
+# Define functions for OpenAI
+functions = [
+    {
+        "name": "remember",
+        "description": "Store important information",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string",
+                    "description": "Information to remember"
+                },
+                "importance": {
+                    "type": "string",
+                    "enum": ["low", "medium", "high"],
+                    "description": "Importance level"
+                }
+            },
+            "required": ["content"]
+        }
+    },
+    {
+        "name": "recall",
+        "description": "Search memories",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "Search query"
+                }
+            },
+            "required": ["query"]
+        }
+    }
+]
+
+# Handle function calls
+def handle_function_call(function_name, arguments):
+    if function_name == "remember":
+        return memory.remember(
+            arguments["content"],
+            metadata={"importance": arguments.get("importance", "medium")}
+        )
+    elif function_name == "recall":
+        return memory.recall(arguments["query"])
+
+# Use with OpenAI
+response = openai.ChatCompletion.create(
+    model="gpt-4",
+    messages=messages,
+    functions=functions,
+    function_call="auto"
+)
+
+if response.choices[0].message.get("function_call"):
+    function_call = response.choices[0].message["function_call"]
+    result = handle_function_call(
+        function_call["name"],
+        json.loads(function_call["arguments"])
+    )
+```
+
+## Anthropic Claude Tools
+
+```python
+import anthropic
+from agentmind import Memory
+
+memory = Memory(api_key="am_live_YOUR_API_KEY")
+
+# Define tools for Claude
+tools = [
+    {
+        "name": "remember",
+        "description": "Store important information in memory",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "content": {"type": "string"},
+                "tags": {"type": "array", "items": {"type": "string"}}
+            },
+            "required": ["content"]
+        }
+    },
+    {
+        "name": "recall",
+        "description": "Retrieve relevant memories",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string"},
+                "limit": {"type": "integer", "default": 5}
+            },
+            "required": ["query"]
+        }
+    }
+]
+
+client = anthropic.Anthropic()
+
+# Send message with tools
+response = client.messages.create(
+    model="claude-3-opus-20240229",
+    messages=[{"role": "user", "content": user_message}],
+    tools=tools,
+    tool_choice={"type": "auto"}
+)
+
+# Process tool use
+for content in response.content:
+    if content.type == "tool_use":
+        if content.name == "remember":
+            result = memory.remember(
+                content.input["content"],
+                metadata={"tags": content.input.get("tags", [])}
+            )
+        elif content.name == "recall":
+            result = memory.recall(
+                content.input["query"],
+                limit=content.input.get("limit", 5)
+            )
+```
+
+## AutoGPT/AutoGen Integration
+
+```python
+from autogen import AssistantAgent, UserProxyAgent
+from agentmind import Memory
+
+# Create memory-enabled assistant
+class MemoryAssistant(AssistantAgent):
+    def __init__(self, name, api_key, **kwargs):
+        super().__init__(name, **kwargs)
+        self.memory = Memory(api_key=api_key)
+    
+    def process_message(self, message, sender):
+        # Check if we should remember something
+        if "remember:" in message.lower():
+            content = message.split("remember:", 1)[1].strip()
+            self.memory.remember(content)
+            return f"Remembered: {content}"
+        
+        # Check if we should recall something
+        if "recall:" in message.lower():
+            query = message.split("recall:", 1)[1].strip()
+            memories = self.memory.recall(query)
+            return f"Found memories: {memories}"
+        
+        # Add context from memory
+        context = self.memory.recall(message, limit=3)
+        enhanced_message = f"{message}\n\nContext: {context}"
+        return super().process_message(enhanced_message, sender)
+```
+
+## CrewAI Integration
+
+```python
+from crewai import Agent, Task, Crew, Tool
+from agentmind import Memory
+
+memory = Memory(api_key="am_live_YOUR_API_KEY")
+
+# Create memory tools
+memory_tools = [
+    Tool(
+        name="Remember Information",
+        func=lambda x: memory.remember(x),
+        description="Store important facts and information"
+    ),
+    Tool(
+        name="Recall Information",
+        func=lambda x: memory.recall(x),
+        description="Search and retrieve stored information"
+    )
+]
+
+# Create agent with memory
+researcher = Agent(
+    role='Senior Researcher',
+    goal='Conduct thorough research and remember findings',
+    backstory='Expert researcher with perfect memory',
+    tools=memory_tools,
+    verbose=True
+)
+
+# Create tasks
+research_task = Task(
+    description='Research the topic and remember key findings',
+    agent=researcher
+)
+
+# Run crew
+crew = Crew(
+    agents=[researcher],
+    tasks=[research_task]
+)
+
+result = crew.kickoff()
+```
+
+## Best Practices
+
+### 1. Memory Scoping
+
+```python
+# User-specific memory
+user_memory = Memory(api_key="am_live_YOUR_API_KEY")
+
+def get_user_memory(user_id):
+    return lambda content: user_memory.remember(
+        content,
+        metadata={"user_id": user_id}
+    )
+
+# Session-specific memory
+def get_session_memory(session_id):
+    return lambda content: user_memory.remember(
+        content,
+        metadata={"session_id": session_id}
+    )
+```
+
+### 2. Automatic Context Injection
+
+```python
+class ContextAwareAgent:
+    def __init__(self, memory):
+        self.memory = memory
+    
+    def process(self, user_input):
+        # Automatically add relevant context
+        context = self.memory.recall(user_input, limit=3)
+        
+        enhanced_prompt = f"""
+        User Input: {user_input}
+        
+        Relevant Context:
+        {json.dumps(context, indent=2)}
+        
+        Please respond considering the above context.
+        """
+        
+        return self.llm.generate(enhanced_prompt)
+```
+
+### 3. Memory Lifecycle Management
+
+```python
+# Set TTL for temporary memories
+memory.remember(
+    "Temporary context for current task",
+    ttl=3600  # Expires in 1 hour
+)
+
+# Clean up old memories
+def cleanup_old_memories(days=30):
+    cutoff = datetime.now() - timedelta(days=days)
+    memory.delete_before(cutoff)
+
+# Hierarchical memory importance
+def smart_remember(content, importance_score):
+    if importance_score > 0.8:
+        memory.remember(content, metadata={"importance": "critical"})
+    elif importance_score > 0.5:
+        memory.remember(content, metadata={"importance": "normal"}, ttl=86400)
+    else:
+        # Don't store low importance items
+        pass
+```
+
+## Next Steps
+
+- Explore [memory search strategies](/essentials/memory-search)
+- Learn about [best practices](/essentials/best-practices)
+- See [example use cases](/essentials/use-cases)

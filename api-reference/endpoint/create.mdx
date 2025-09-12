@@ -1,4 +1,188 @@
 ---
-title: 'Create Plant'
-openapi: 'POST /plants'
+title: 'Store Memory'
+api: 'POST /memories'
+description: 'Store new information in agent memory'
 ---
+
+## Overview
+
+Store a new memory entry in your agent's memory bank. The content can be any JSON-serializable data including strings, dictionaries, lists, or complex nested structures.
+
+## Request
+
+<ParamField body="content" type="any" required>
+  The data to store in memory. Can be a string, dictionary, list, or any JSON-serializable object.
+</ParamField>
+
+<ParamField body="id" type="string">
+  Custom memory ID. If not provided, a unique ID will be auto-generated. Must be alphanumeric with underscores only.
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Additional metadata to attach to the memory for filtering and organization.
+</ParamField>
+
+<ParamField body="user_id" type="string">
+  Associate memory with a specific user or conversation.
+</ParamField>
+
+<ParamField body="session_id" type="string">
+  Group memories by session for context management.
+</ParamField>
+
+<ParamField body="ttl" type="integer">
+  Time-to-live in seconds. Memory will auto-expire after this duration.
+</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string">
+  The unique identifier for the stored memory
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Status of the operation ("success")
+</ResponseField>
+
+<ResponseField name="timestamp" type="string">
+  ISO 8601 timestamp of when the memory was created
+</ResponseField>
+
+## Examples
+
+### Python SDK
+
+```python
+from agentmind import Memory
+from datetime import datetime
+
+memory = Memory(api_key="am_live_YOUR_API_KEY")
+
+# Store user preference with metadata
+memory.remember(
+    "Prefers email communication, no calls before 10am PST",
+    metadata={
+        "user_id": "user_123",
+        "category": "preferences",
+        "type": "communication"
+    }
+)
+
+# Store API configuration
+memory.remember(
+    {"rate_limit": 1000, "timeout": 30, "retry_count": 3},
+    metadata={
+        "category": "config",
+        "service": "openai",
+        "environment": "production"
+    }
+)
+
+# Store financial analysis context
+memory.remember({
+    "portfolio": {
+        "risk_tolerance": "moderate",
+        "investment_horizon": "10 years",
+        "preferred_sectors": ["technology", "healthcare"],
+        "avoid_sectors": ["tobacco", "weapons"]
+    },
+    "recent_analysis": "Interested in ESG investing"
+}, metadata={
+    "user_id": "investor_789",
+    "category": "investment_profile",
+    "compliance_checked": True
+})
+
+# Store tech infrastructure monitoring
+memory.remember({
+    "service": "api-gateway",
+    "baseline_latency": 45,
+    "peak_hours": ["9-10am", "2-3pm"],
+    "dependencies": ["auth-service", "rate-limiter"],
+    "last_incident": "2024-03-15",
+    "auto_scaling_threshold": 80
+}, metadata={
+    "category": "infrastructure",
+    "environment": "production",
+    "region": "us-west-2",
+    "alert_threshold": 100
+})
+```
+
+### REST API
+
+```bash
+# Simple memory
+curl -X POST https://api.agent-mind.com/v1/memories \
+  -H "Authorization: Bearer am_live_YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "Customer prefers email communication"
+  }'
+
+# With custom ID and metadata
+curl -X POST https://api.agent-mind.com/v1/memories \
+  -H "Authorization: Bearer am_live_YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": {
+      "preference": "email",
+      "frequency": "weekly"
+    },
+    "id": "comm_prefs",
+    "metadata": {
+      "category": "preferences",
+      "user_id": "user_123"
+    }
+  }'
+```
+
+### Response Example
+
+```json
+{
+  "id": "mem_7f8a9b2c3d4e",
+  "status": "success",
+  "timestamp": "2024-03-20T14:30:00Z"
+}
+```
+
+## Error Responses
+
+### 400 Bad Request
+
+```json
+{
+  "error": {
+    "code": "invalid_id",
+    "message": "Memory ID contains invalid characters",
+    "details": {
+      "field": "id",
+      "value": "my-memory-123",
+      "reason": "Only alphanumeric and underscores allowed"
+    }
+  }
+}
+```
+
+### 401 Unauthorized
+
+```json
+{
+  "error": {
+    "code": "invalid_api_key",
+    "message": "The provided API key is invalid or expired"
+  }
+}
+```
+
+### 413 Payload Too Large
+
+```json
+{
+  "error": {
+    "code": "content_too_large",
+    "message": "Memory content exceeds maximum size of 1MB"
+  }
+}
+```

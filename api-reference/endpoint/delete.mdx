@@ -1,4 +1,154 @@
 ---
-title: 'Delete Plant'
-openapi: 'DELETE /plants/{id}'
+title: 'Delete Memory'
+api: 'DELETE /memories/{id}'
+description: 'Remove a memory from storage'
 ---
+
+## Overview
+
+Delete a specific memory entry from your agent's memory bank. This operation is permanent and cannot be undone.
+
+## Request
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the memory to delete
+</ParamField>
+
+## Response
+
+<ResponseField name="status" type="string">
+  Status of the operation ("success")
+</ResponseField>
+
+<ResponseField name="id" type="string">
+  The ID of the deleted memory
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Confirmation message
+</ResponseField>
+
+## Examples
+
+### Python SDK
+
+```python
+from agentmind import Memory
+
+memory = Memory(api_key="am_live_YOUR_API_KEY")
+
+# Delete a specific memory
+memory.delete("old_preference")
+
+# Delete with error handling
+try:
+    memory.delete("temp_session_data")
+    print("Memory deleted successfully")
+except MemoryNotFoundError:
+    print("Memory already deleted or doesn't exist")
+
+# Bulk delete example
+memories_to_delete = ["temp_1", "temp_2", "temp_3"]
+for mem_id in memories_to_delete:
+    memory.delete(mem_id)
+```
+
+### REST API
+
+```bash
+# Delete a memory
+curl -X DELETE https://api.agent-mind.com/v1/memories/old_preference \
+  -H "Authorization: Bearer am_live_YOUR_API_KEY"
+
+# Delete with verbose output
+curl -X DELETE https://api.agent-mind.com/v1/memories/temp_session_data \
+  -H "Authorization: Bearer am_live_YOUR_API_KEY" \
+  -v
+```
+
+### Response Example
+
+```json
+{
+  "status": "success",
+  "id": "old_preference",
+  "message": "Memory successfully deleted"
+}
+```
+
+## Bulk Delete
+
+For deleting multiple memories, use the batch endpoint:
+
+### Python SDK
+
+```python
+# Delete multiple memories at once
+memory.delete_many(["id1", "id2", "id3"])
+
+# Delete by metadata filter
+memory.delete_by_filter(
+    metadata_filter={"category": "temporary", "expired": True}
+)
+
+# Delete by age
+from datetime import datetime, timedelta
+
+cutoff_date = datetime.now() - timedelta(days=30)
+memory.delete_before(cutoff_date)
+```
+
+### REST API
+
+```bash
+# Batch delete
+curl -X POST https://api.agent-mind.com/v1/memories/delete-batch \
+  -H "Authorization: Bearer am_live_YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ids": ["id1", "id2", "id3"]
+  }'
+
+# Delete by filter
+curl -X POST https://api.agent-mind.com/v1/memories/delete-by-filter \
+  -H "Authorization: Bearer am_live_YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "metadata_filter": {
+      "category": "temporary",
+      "session_id": "old_session_123"
+    }
+  }'
+```
+
+## Error Responses
+
+### 404 Not Found
+
+```json
+{
+  "error": {
+    "code": "memory_not_found",
+    "message": "No memory found with ID 'unknown_id'"
+  }
+}
+```
+
+### 401 Unauthorized
+
+```json
+{
+  "error": {
+    "code": "invalid_api_key",
+    "message": "The provided API key is invalid or expired"
+  }
+}
+```
+
+## Important Notes
+
+- Deletion is **permanent** and cannot be undone
+- Deleting a non-existent memory returns 404, not an error
+- Bulk operations are atomic - either all succeed or all fail
+- Consider using TTL (time-to-live) for automatic expiration instead of manual deletion
+- Deleted memory IDs can be reused after deletion

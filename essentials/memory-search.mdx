@@ -1,0 +1,350 @@
+---
+title: 'Memory Search'
+description: 'Advanced search techniques and strategies'
+icon: 'magnifying-glass'
+---
+
+## Overview
+
+AgentMind uses semantic search to find relevant memories based on meaning, not just keywords. This guide covers advanced search techniques to get the most out of your agent's memory.
+
+## Search Fundamentals
+
+### Natural Language Queries
+
+```python
+from agentmind import Memory
+
+memory = Memory(api_key="am_live_YOUR_API_KEY")
+
+# Natural language works best
+results = memory.recall("What are the user's communication preferences?")
+
+# Better than keyword search
+results = memory.recall("email phone SMS preferences")  # Less effective
+```
+
+### Similarity Threshold
+
+Control result relevance with the threshold parameter:
+
+```python
+# High threshold (0.9) - Only very relevant results
+critical_info = memory.recall(
+    "payment information",
+    threshold=0.9  # Very strict matching
+)
+
+# Medium threshold (0.7) - Default, balanced
+general_info = memory.recall(
+    "user preferences",
+    threshold=0.7
+)
+
+# Low threshold (0.5) - More results, possibly less relevant
+broad_search = memory.recall(
+    "any issues or problems",
+    threshold=0.5
+)
+```
+
+## Advanced Search Strategies
+
+### 1. Contextual Search
+
+Add context to improve search accuracy:
+
+```python
+# Include user context
+def search_with_context(query, user_id, session_id=None):
+    full_query = f"For user {user_id}: {query}"
+    return memory.recall(
+        full_query,
+        metadata_filter={"user_id": user_id, "session_id": session_id}
+    )
+
+# Time-based context
+def search_recent(query, days=7):
+    from datetime import datetime, timedelta
+    cutoff = datetime.now() - timedelta(days=days)
+    
+    full_query = f"{query} from the last {days} days"
+    return memory.recall(
+        full_query,
+        metadata_filter={"timestamp": {"$gte": cutoff.isoformat()}}
+    )
+```
+
+### 2. Multi-Query Strategy
+
+Search with multiple queries for comprehensive results:
+
+```python
+def comprehensive_search(topic):
+    queries = [
+        f"What do we know about {topic}?",
+        f"Issues or problems related to {topic}",
+        f"User preferences for {topic}",
+        f"Recent changes to {topic}"
+    ]
+    
+    all_results = []
+    seen_ids = set()
+    
+    for query in queries:
+        results = memory.recall(query, limit=5)
+        for result in results:
+            if result['id'] not in seen_ids:
+                all_results.append(result)
+                seen_ids.add(result['id'])
+    
+    # Sort by relevance score
+    all_results.sort(key=lambda x: x['score'], reverse=True)
+    return all_results[:10]
+```
+
+### 3. Hierarchical Search
+
+Start broad, then narrow down:
+
+```python
+def hierarchical_search(category, specific_query):
+    # First, get category context
+    category_context = memory.recall(
+        f"General information about {category}",
+        limit=3
+    )
+    
+    # Then search within that context
+    specific_results = memory.recall(
+        specific_query,
+        metadata_filter={"category": category},
+        limit=5
+    )
+    
+    return {
+        "context": category_context,
+        "specific": specific_results
+    }
+```
+
+## Search Patterns
+
+### Question-Answer Pattern
+
+```python
+def find_answer(question):
+    # Search for direct answers
+    memories = memory.recall(question, threshold=0.8)
+    
+    if memories:
+        return memories[0]['content']
+    
+    # Fallback to broader search
+    memories = memory.recall(question, threshold=0.6)
+    return memories if memories else "No relevant information found"
+```
+
+### Fact Retrieval Pattern
+
+```python
+def get_facts_about(entity):
+    queries = [
+        f"Facts about {entity}",
+        f"{entity} characteristics",
+        f"{entity} details",
+        f"What we know about {entity}"
+    ]
+    
+    facts = []
+    for query in queries:
+        results = memory.recall(query, limit=3)
+        facts.extend([r['content'] for r in results])
+    
+    return list(set(facts))  # Deduplicate
+```
+
+### History Search Pattern
+
+```python
+def get_interaction_history(user_id, topic=None):
+    if topic:
+        query = f"User {user_id} interactions about {topic}"
+    else:
+        query = f"All interactions with user {user_id}"
+    
+    return memory.recall(
+        query,
+        metadata_filter={"user_id": user_id},
+        limit=20
+    )
+```
+
+## Metadata Filtering
+
+### Basic Filters
+
+```python
+# Filter by single field
+results = memory.recall(
+    "configuration settings",
+    metadata_filter={"category": "config"}
+)
+
+# Filter by multiple fields
+results = memory.recall(
+    "user issues",
+    metadata_filter={
+        "type": "issue",
+        "status": "unresolved",
+        "priority": "high"
+    }
+)
+```
+
+### Advanced Filters
+
+```python
+# Range queries
+results = memory.recall(
+    "recent activities",
+    metadata_filter={
+        "timestamp": {"$gte": "2024-03-01", "$lt": "2024-04-01"},
+        "importance": {"$gte": 7}
+    }
+)
+
+# In/Not In queries
+results = memory.recall(
+    "user preferences",
+    metadata_filter={
+        "category": {"$in": ["preference", "setting", "config"]},
+        "deprecated": {"$ne": True}
+    }
+)
+```
+
+## Performance Optimization
+
+### 1. Caching Strategy
+
+```python
+from functools import lru_cache
+from hashlib import md5
+
+class CachedMemory:
+    def __init__(self, memory):
+        self.memory = memory
+        self.cache = {}
+        self.cache_ttl = 300  # 5 minutes
+    
+    def recall_cached(self, query, **kwargs):
+        # Create cache key
+        cache_key = md5(
+            f"{query}{kwargs}".encode()
+        ).hexdigest()
+        
+        # Check cache
+        if cache_key in self.cache:
+            cached_time, results = self.cache[cache_key]
+            if time.time() - cached_time < self.cache_ttl:
+                return results
+        
+        # Fetch and cache
+        results = self.memory.recall(query, **kwargs)
+        self.cache[cache_key] = (time.time(), results)
+        return results
+```
+
+### 2. Batch Searching
+
+```python
+def batch_search(queries):
+    """Execute multiple searches efficiently"""
+    results = {}
+    
+    # Group similar queries
+    for query in queries:
+        results[query] = memory.recall(query, limit=5)
+    
+    return results
+```
+
+### 3. Progressive Loading
+
+```python
+def progressive_search(query, batch_size=5):
+    """Load results in batches as needed"""
+    offset = 0
+    while True:
+        results = memory.recall(
+            query,
+            limit=batch_size,
+            offset=offset
+        )
+        
+        if not results:
+            break
+            
+        yield results
+        offset += batch_size
+```
+
+## Search Quality Metrics
+
+### Relevance Scoring
+
+```python
+def analyze_search_quality(query, results):
+    scores = [r['score'] for r in results]
+    
+    return {
+        "avg_score": sum(scores) / len(scores) if scores else 0,
+        "min_score": min(scores) if scores else 0,
+        "max_score": max(scores) if scores else 0,
+        "high_quality": len([s for s in scores if s > 0.8]),
+        "low_quality": len([s for s in scores if s < 0.6])
+    }
+```
+
+### Search Effectiveness
+
+```python
+def test_search_effectiveness(test_cases):
+    """Test search quality with known queries"""
+    results = []
+    
+    for query, expected_id in test_cases:
+        search_results = memory.recall(query, limit=5)
+        found = any(r['id'] == expected_id for r in search_results)
+        position = next(
+            (i for i, r in enumerate(search_results) 
+             if r['id'] == expected_id),
+            -1
+        )
+        
+        results.append({
+            "query": query,
+            "found": found,
+            "position": position,
+            "score": search_results[position]['score'] if found else 0
+        })
+    
+    return results
+```
+
+## Best Practices
+
+1. **Use natural language**: "What is the user's email?" works better than "email user"
+
+2. **Be specific**: "John's billing address" is better than "address"
+
+3. **Include context**: "Error messages from the payment system" vs just "errors"
+
+4. **Set appropriate thresholds**: Use high thresholds for critical data, lower for exploration
+
+5. **Filter when possible**: Use metadata filters to narrow search scope
+
+6. **Cache frequently searched queries**: Reduce API calls and improve response time
+
+7. **Monitor search quality**: Track relevance scores to improve queries

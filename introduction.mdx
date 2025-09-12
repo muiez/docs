@@ -1,6 +1,6 @@
 ---
 title: Introduction
-description: "Welcome to the home of your new documentation"
+description: "Give your AI agents memory they control"
 ---
 
 <img
@@ -14,58 +14,105 @@ description: "Welcome to the home of your new documentation"
   alt="Hero Dark"
 />
 
-## Setting up
+# AgentMind
 
-The first step to world-class documentation is setting up your editing environments.
+AgentMind is a powerful memory management system for AI agents. It gives your agents the ability to remember important information, learn from interactions, and maintain context across conversations - all under their autonomous control.
+
+## Why AgentMind?
+
+Your AI agents need memory they can control. AgentMind is a tool you give to your agents, allowing them to decide what to remember, when to remember it, and how to use that knowledge. Instead of you managing context and memory, your agent does it autonomously.
 
 <CardGroup cols={2}>
   <Card
-    title="Edit Your Docs"
-    icon="pen-to-square"
-    href="https://mintlify.com/docs/quickstart"
+    title="Agent-Controlled Memory"
+    icon="brain"
+    href="/quickstart"
   >
-    Get your docs set up locally for easy development
+    Give your agents autonomous control over what they remember and recall
   </Card>
   <Card
-    title="Preview Changes"
-    icon="image"
-    href="https://mintlify.com/docs/development"
+    title="Natural Language Search"
+    icon="magnifying-glass"
+    href="/essentials/memory-search"
   >
-    Preview your changes before you push to make sure they're perfect
+    Search memories using natural language queries for intuitive retrieval
+  </Card>
+  <Card
+    title="Simple Integration"
+    icon="plug"
+    href="/api-reference/introduction"
+  >
+    Easy-to-use Python SDK and REST API for seamless integration
+  </Card>
+  <Card
+    title="Scalable Storage"
+    icon="database"
+    href="/essentials/settings"
+  >
+    Cloud-hosted solution that scales with your application needs
   </Card>
 </CardGroup>
 
-## Make it yours
-
-Update your docs to your brand and add valuable content for the best user conversion.
+## Perfect For
 
 <CardGroup cols={2}>
   <Card
-    title="Customize Style"
-    icon="palette"
-    href="https://mintlify.com/docs/settings/global"
+    title="Customer Service Bots"
+    icon="headset"
   >
-    Customize your docs to your company's colors and brands
+    Remember past issues, preferences, and context for better support
   </Card>
   <Card
-    title="Reference APIs"
+    title="Personal Assistants"
+    icon="robot"
+  >
+    Track user preferences, habits, and long-term goals
+  </Card>
+  <Card
+    title="Multi-Step Workflows"
+    icon="diagram-project"
+  >
+    Maintain context across complex, multi-step processes
+  </Card>
+  <Card
+    title="Learning Agents"
+    icon="graduation-cap"
+  >
+    Improve performance by learning from past interactions
+  </Card>
+</CardGroup>
+
+## Quick Example
+
+```python
+from agentmind import Memory
+
+# Initialize memory for your agent
+memory = Memory(api_key="am_live_YOUR_API_KEY")
+
+# Your agent decides to remember something important
+memory.remember("Customer prefers email over phone calls")
+
+# Later, your agent recalls relevant information
+context = memory.recall("customer communication preferences")
+# Returns: "Customer prefers email over phone calls"
+```
+
+## Get Started
+
+<CardGroup cols={2}>
+  <Card
+    title="Quick Start Guide"
+    icon="rocket"
+    href="/quickstart"
+  >
+    Get up and running with AgentMind in 5 minutes
+  </Card>
+  <Card
+    title="API Reference"
     icon="code"
-    href="https://mintlify.com/docs/api-playground/openapi"
+    href="/api-reference/introduction"
   >
-    Automatically generate endpoints from an OpenAPI spec
-  </Card>
-  <Card
-    title="Add Components"
-    icon="screwdriver-wrench"
-    href="https://mintlify.com/docs/content/components/accordions"
-  >
-    Build interactive features and designs to guide your users
-  </Card>
-  <Card
-    title="Get Inspiration"
-    icon="stars"
-    href="https://mintlify.com/customers"
-  >
-    Check out our showcase of our favorite documentation
+    Explore the complete API documentation
   </Card>
 </CardGroup>

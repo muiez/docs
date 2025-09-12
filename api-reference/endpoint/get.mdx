@@ -1,4 +1,164 @@
 ---
-title: 'Get Plants'
-openapi: 'GET /plants'
+title: 'Get Memory'
+api: 'GET /memories/{id}'
+description: 'Retrieve a specific memory by ID'
 ---
+
+## Overview
+
+Retrieve a specific memory entry by its unique identifier. This is the fastest way to access memories when you know the exact ID.
+
+## Request
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the memory to retrieve
+</ParamField>
+
+<ParamField query="include_metadata" type="boolean" default="false">
+  Include metadata in the response
+</ParamField>
+
+<ParamField query="include_embedding" type="boolean" default="false">
+  Include the vector embedding in the response
+</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string">
+  The unique identifier of the memory
+</ResponseField>
+
+<ResponseField name="content" type="any">
+  The stored memory content (string, object, or array)
+</ResponseField>
+
+<ResponseField name="timestamp" type="string">
+  ISO 8601 timestamp of when the memory was created
+</ResponseField>
+
+<ResponseField name="metadata" type="object">
+  Additional metadata (only if include_metadata=true)
+</ResponseField>
+
+<ResponseField name="embedding" type="array">
+  Vector embedding for semantic search (only if include_embedding=true)
+</ResponseField>
+
+## Examples
+
+### Python SDK
+
+```python
+from agentmind import Memory
+
+memory = Memory(api_key="am_live_YOUR_API_KEY")
+
+# Get memory by ID
+content = memory.get("api_limits")
+# Returns: "API rate limit is 1000 req/hour"
+
+# Get with metadata
+data = memory.get("customer_profile", include_metadata=True)
+# Returns: {
+#   "content": {"name": "John Doe", ...},
+#   "metadata": {"category": "profile"},
+#   "timestamp": "2024-03-20T14:30:00Z"
+# }
+
+# Get with embedding for similarity comparisons
+memory_with_vector = memory.get(
+    "ui_prefs", 
+    include_embedding=True
+)
+```
+
+### REST API
+
+```bash
+# Simple retrieval
+curl https://api.agent-mind.com/v1/memories/api_limits \
+  -H "Authorization: Bearer am_live_YOUR_API_KEY"
+
+# With metadata
+curl "https://api.agent-mind.com/v1/memories/customer_profile?include_metadata=true" \
+  -H "Authorization: Bearer am_live_YOUR_API_KEY"
+
+# With embedding
+curl "https://api.agent-mind.com/v1/memories/ui_prefs?include_embedding=true" \
+  -H "Authorization: Bearer am_live_YOUR_API_KEY"
+```
+
+### Response Examples
+
+#### Simple Response
+
+```json
+{
+  "id": "api_limits",
+  "content": "API rate limit is 1000 req/hour",
+  "timestamp": "2024-03-20T14:30:00Z"
+}
+```
+
+#### With Metadata
+
+```json
+{
+  "id": "customer_profile",
+  "content": {
+    "name": "John Doe",
+    "tier": "enterprise",
+    "preferences": {
+      "contact": "email",
+      "language": "en-US"
+    }
+  },
+  "timestamp": "2024-03-20T14:30:00Z",
+  "metadata": {
+    "category": "profile",
+    "user_id": "user_123",
+    "importance": "high"
+  }
+}
+```
+
+#### With Embedding
+
+```json
+{
+  "id": "ui_prefs",
+  "content": "User prefers dark mode with high contrast",
+  "timestamp": "2024-03-20T14:30:00Z",
+  "embedding": [0.124, -0.456, 0.789, ...]
+}
+```
+
+## Error Responses
+
+### 404 Not Found
+
+```json
+{
+  "error": {
+    "code": "memory_not_found",
+    "message": "No memory found with ID 'unknown_id'"
+  }
+}
+```
+
+### 401 Unauthorized
+
+```json
+{
+  "error": {
+    "code": "invalid_api_key",
+    "message": "The provided API key is invalid or expired"
+  }
+}
+```
+
+## Performance Notes
+
+- Direct ID lookup is O(1) and typically returns in <10ms
+- Including embeddings adds ~2-5ms to response time
+- Memory content is returned exactly as stored (preserves types)

@@ -1,33 +1,171 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: 'API Reference'
+description: 'Complete API documentation for AgentMind'
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+## Overview
 
-## Welcome
+AgentMind provides both a Python SDK and REST API for managing agent memory. The API allows you to store, retrieve, and search memories using natural language.
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+## Base URL
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+```
+https://api.agent-mind.com/v1
+```
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+All API requests require authentication using your API key. You can obtain an API key from your [dashboard](https://agent-mind.com/dashboard).
+
+### Header Authentication
+
+Include your API key in the `Authorization` header:
+
+```bash
+Authorization: Bearer am_live_YOUR_API_KEY
+```
+
+### Python SDK Authentication
+
+```python
+from agentmind import Memory
+
+memory = Memory(api_key="am_live_YOUR_API_KEY")
+```
+
+## Core Concepts
+
+### Memory Entry
+
+A memory entry consists of:
+- **content**: The actual data to remember (string, dict, list, or any JSON-serializable object)
+- **id**: Unique identifier (auto-generated or custom)
+- **metadata**: Optional metadata for filtering and organization
+- **timestamp**: When the memory was created
+- **embedding**: Vector representation for semantic search (auto-generated)
+
+### Memory Operations
+
+<CardGroup cols={2}>
+  <Card
+    title="Store Memory"
+    icon="save"
+    href="/api-reference/endpoint/create"
+  >
+    Store new information in memory
+  </Card>
+  <Card
+    title="Retrieve Memory"
+    icon="download"
+    href="/api-reference/endpoint/get"
+  >
+    Get specific memory by ID
+  </Card>
+  <Card
+    title="Search Memories"
+    icon="magnifying-glass"
+    href="/api-reference/endpoint/search"
+  >
+    Search using natural language
+  </Card>
+  <Card
+    title="Delete Memory"
+    icon="trash"
+    href="/api-reference/endpoint/delete"
+  >
+    Remove memories from storage
+  </Card>
+</CardGroup>
+
+## Rate Limits
+
+- **Free Tier**: 1,000 requests per hour
+- **Pro Tier**: 10,000 requests per hour
+- **Enterprise**: Custom limits
+
+Rate limit information is included in response headers:
+- `X-RateLimit-Limit`: Maximum requests per hour
+- `X-RateLimit-Remaining`: Requests remaining
+- `X-RateLimit-Reset`: Time when limit resets
+
+## Error Handling
+
+AgentMind uses standard HTTP status codes:
+
+| Status Code | Description |
+|-------------|-------------|
+| 200 | Success |
+| 400 | Bad Request - Invalid parameters |
+| 401 | Unauthorized - Invalid API key |
+| 404 | Not Found - Memory ID doesn't exist |
+| 429 | Too Many Requests - Rate limit exceeded |
+| 500 | Internal Server Error |
+
+### Error Response Format
 
 ```json
-"security": [
-  {
-    "bearerAuth": []
+{
+  "error": {
+    "code": "invalid_request",
+    "message": "The memory ID format is invalid",
+    "details": {
+      "field": "id",
+      "reason": "Must be alphanumeric with underscores only"
+    }
   }
-]
+}
+```
+
+## SDK Installation
+
+### Python
+
+```bash
+pip install agentmind
+```
+
+### JavaScript (Coming Soon)
+
+```bash
+npm install @agentmind/sdk
+```
+
+## Quick Examples
+
+### Python SDK
+
+```python
+from agentmind import Memory
+
+# Initialize
+memory = Memory(api_key="am_live_YOUR_API_KEY")
+
+# Store
+memory.remember("User prefers dark mode", id="ui_prefs")
+
+# Retrieve
+pref = memory.get("ui_prefs")
+
+# Search
+results = memory.recall("user interface preferences")
+```
+
+### REST API
+
+```bash
+# Store memory
+curl -X POST https://api.agent-mind.com/v1/memories \
+  -H "Authorization: Bearer am_live_YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"content": "User prefers dark mode", "id": "ui_prefs"}'
+
+# Retrieve memory
+curl https://api.agent-mind.com/v1/memories/ui_prefs \
+  -H "Authorization: Bearer am_live_YOUR_API_KEY"
+
+# Search memories
+curl https://api.agent-mind.com/v1/memories/search \
+  -H "Authorization: Bearer am_live_YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "user interface preferences", "limit": 5}'
 ```

@@ -1,78 +1,229 @@
 ---
-title: 'LeedAB Quickstart'
-description: 'Start managing leads with LeedAB in under 5 minutes'
+title: 'Quick Start'
+description: 'Get up and running with AgentMind in 5 minutes'
 ---
 
-## Set Up Your Environment
+## Installation
 
-Learn how to update your LeedAB configuration locally and make sure everything deploys properly.
+Install AgentMind using pip:
 
-### Edit and Preview
+```bash
+pip install agentmind
+```
 
-<AccordionGroup>
-  <Accordion icon="github" title="Clone Your Project">
-    During onboarding, a GitHub repository containing your LeedAB dashboard code 
-    is created. You can find this repository in your 
-    [dashboard](https://dashboard.mintlify.com). To clone the repo locally, follow 
-    these 
-    [instructions](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) 
-    from your terminal.
-  </Accordion>
+## Get Your API Key
 
-  <Accordion icon="rectangle-terminal" title="Preview Changes">
-    Once cloned, you can preview modifications to ensure your LeedAB dashboard looks 
-    and functions correctly. If you have a CLI or local server script, run it at the 
-    root of your repository. For example:
-    1. Install any necessary dependencies (e.g., `npm install`).
-    2. Start your local dev environment (e.g., `npm run dev`) to see real-time updates.
-  </Accordion>
-</AccordionGroup>
+Sign up for a free API key at [agent-mind.com](https://agent-mind.com) to get started with the cloud-hosted service.
 
-### Deploy Your Changes
+## Basic Usage
 
-<AccordionGroup>
-  <Accordion icon="message-bot" title="Set Up Automatic Deployments">
-    You can configure a CI/CD pipeline or use a GitHub app for automatic deployments 
-    every time you push changes. Check your 
-    [dashboard](https://dashboard.mintlify.com) for quick setup guides. Once linked, 
-    you should see a successful check mark next to your commit hash if everything 
-    deployed correctly.
-  </Accordion>
+### Initialize Memory
 
-  <Accordion icon="rocket" title="Push Your Updates">
-    After you've committed all changes, 
-    [push your code to GitHub](https://docs.github.com/en/get-started/using-git/pushing-commits-to-a-remote-repository#about-git-push). 
-    Monitor your build or deployment logs to ensure the new version of your LeedAB 
-    dashboard is up-to-date. If for some reason the automatic deployment fails, you 
-    can trigger a manual update through the 
-    [dashboard](https://dashboard.mintlify.com).
-  </Accordion>
-</AccordionGroup>
+```python
+from agentmind import Memory
 
-## Update Your Dashboard
+# Initialize with your API key
+memory = Memory(api_key="am_live_YOUR_API_KEY")
+```
 
-LeedAB uses modern web components (MDX or React-based, if applicable) to customize 
-and extend lead management functionality. You can add or edit features directly in 
-your files.
+### Store Memories
 
-<CardGroup>
-  <Card title="Style Your Dashboard" icon="paintbrush" href="/settings/global">
-    Personalize the look and feel of your LeedAB dashboard with custom branding 
-    and UI themes.
+AgentMind accepts any data type - strings, dicts, lists. Use metadata for organization:
+
+```python
+# Store user-specific preference
+memory.remember(
+    "Prefers email over phone calls, send weekly summaries",
+    metadata={"user_id": "user_123", "category": "preferences"}
+)
+
+# Store system configuration with metadata
+memory.remember(
+    {"rate_limit": 1000, "timeout": 30, "retry_count": 3},
+    metadata={"category": "api_config", "service": "openai"}
+)
+
+# Store customer profile with user_id
+memory.remember({
+    "name": "John Doe",
+    "tier": "enterprise", 
+    "features": ["sso", "analytics", "priority_support"],
+    "contract_value": 50000,
+    "renewal_date": "2024-12-01"
+}, metadata={"user_id": "user_123", "type": "profile"})
+```
+
+### Retrieve Memories
+
+#### Natural Language Search
+
+```python
+# Search for user-specific memories
+results = memory.recall(
+    "How does user_123 want to be contacted?",
+    metadata_filter={"user_id": "user_123"}
+)
+# Returns: ["Prefers email over phone calls, send weekly summaries"]
+
+# Search for configuration
+api_config = memory.recall(
+    "OpenAI API configuration",
+    metadata_filter={"category": "api_config", "service": "openai"}
+)
+# Returns the rate limit and timeout settings
+
+# Search across all user issues
+recent_issues = memory.recall(
+    "unresolved customer problems",
+    metadata_filter={"status": "open", "type": "issue"},
+    limit=5
+)
+```
+
+## Agent Tool Integration
+
+The primary use case for AgentMind is giving your agents memory tools:
+
+```python
+# Define memory tools for your agent with user context
+def create_memory_tools(user_id: str):
+    memory = Memory(api_key="am_live_YOUR_API_KEY")
+    
+    def remember_tool(content: str, category: str = "general"):
+        """Store information with user context."""
+        return memory.remember(
+            content=content,
+            metadata={
+                "user_id": user_id,
+                "category": category,
+                "timestamp": datetime.now().isoformat()
+            }
+        )
+    
+    def recall_tool(query: str, category: str = None):
+        """Recall information for this user."""
+        filters = {"user_id": user_id}
+        if category:
+            filters["category"] = category
+            
+        memories = memory.recall(query, metadata_filter=filters, limit=5)
+        return memories if memories else []
+    
+    return remember_tool, recall_tool
+
+# Create tools for a specific user
+remember, recall = create_memory_tools("user_123")
+
+# Add to your agent
+agent = YourAgent(
+    tools=[remember, recall],
+    system_prompt="You have memory tools for this user. Remember important details."
+)
+```
+
+## Complete Example
+
+Here's a practical AI assistant personalization example:
+
+```python
+from agentmind import Memory
+from datetime import datetime
+
+# Initialize memory
+memory = Memory(api_key="am_live_YOUR_API_KEY")
+
+# AI Assistant learning user's work patterns
+user_id = "user_dev_456"
+session_id = "session_" + datetime.now().strftime("%Y%m%d_%H%M%S")
+
+# Store coding preferences
+memory.remember(
+    "Prefers TypeScript with strict mode, uses React hooks over class components",
+    metadata={
+        "user_id": user_id,
+        "category": "coding_preferences",
+        "language": "typescript",
+        "framework": "react"
+    }
+)
+
+# Store work patterns
+memory.remember({
+    "peak_productivity": "9am-12pm",
+    "preferred_session_length": "2 hours",
+    "break_pattern": "pomodoro",
+    "focus_music": "lo-fi beats"
+}, metadata={
+    "user_id": user_id,
+    "category": "work_patterns",
+    "last_updated": datetime.now().isoformat()
+})
+
+# Store frequently used tools and commands
+memory.remember({
+    "ide": "VSCode",
+    "terminal": "iTerm2",
+    "common_commands": ["npm run dev", "git status", "docker-compose up"],
+    "snippets": ["rafce", "useState", "useEffect"]
+}, metadata={
+    "user_id": user_id,
+    "category": "dev_environment"
+})
+
+# Later, AI assistant personalizes responses
+coding_style = memory.recall(
+    "TypeScript React preferences",
+    metadata_filter={"user_id": user_id, "category": "coding_preferences"}
+)
+# AI generates code examples matching user's style
+
+work_patterns = memory.recall(
+    "productivity patterns",
+    metadata_filter={"user_id": user_id, "category": "work_patterns"}
+)
+# AI suggests breaks and focus sessions based on patterns
+
+# Track learning progress
+memory.remember(
+    "Learned about Next.js App Router, interested in server components",
+    metadata={
+        "user_id": user_id,
+        "category": "learning_journey",
+        "topic": "nextjs",
+        "date": datetime.now().isoformat()
+    }
+)
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="API Reference"
+    icon="code"
+    href="/api-reference/introduction"
+  >
+    Explore all available methods and parameters
   </Card>
-
-  <Card title="Add Lead Import Flows" icon="square-code" href="/api-playground/configuration">
-    Implement CSV or API-based imports to quickly load large volumes of leads 
-    into your dashboard.
+  <Card
+    title="Agent Examples"
+    icon="robot"
+    href="/essentials/agent-integration"
+  >
+    See how to integrate with popular agent frameworks
   </Card>
-
-  <Card title="Integrate Analytics" icon="chart-mixed" href="/analytics/supported-integrations">
-    Get insights on lead interactions, call outcomes, and conversion metrics 
-    within your LeedAB dashboard.
+  <Card
+    title="Best Practices"
+    icon="lightbulb"
+    href="/essentials/best-practices"
+  >
+    Learn memory management best practices
   </Card>
-
-  <Card title="Connect a Custom Domain" icon="browser" href="/settings/custom-domain/subdomain">
-    Host your LeedAB dashboard on a personalized subdomain to keep it seamlessly 
-    integrated with your brand.
+  <Card
+    title="Advanced Features"
+    icon="gear"
+    href="/essentials/settings"
+  >
+    Configure advanced features and settings
   </Card>
 </CardGroup>

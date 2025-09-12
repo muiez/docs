@@ -1,0 +1,203 @@
+---
+title: 'Search Memories'
+api: 'POST /memories/search'
+description: 'Search memories using natural language queries'
+---
+
+## Overview
+
+Search through stored memories using natural language queries. AgentMind uses semantic search to find relevant memories based on meaning, not just keyword matching.
+
+## Request
+
+<ParamField body="query" type="string" required>
+  Natural language search query
+</ParamField>
+
+<ParamField body="limit" type="integer" default="10">
+  Maximum number of results to return (1-100)
+</ParamField>
+
+<ParamField body="user_id" type="string">
+  Filter results by user ID
+</ParamField>
+
+<ParamField body="session_id" type="string">
+  Filter results by session ID
+</ParamField>
+
+<ParamField body="metadata_filter" type="object">
+  Filter by metadata key-value pairs
+</ParamField>
+
+<ParamField body="threshold" type="float" default="0.7">
+  Minimum similarity score (0-1). Higher values return more relevant results.
+</ParamField>
+
+<ParamField body="include_metadata" type="boolean" default="false">
+  Include metadata in results
+</ParamField>
+
+## Response
+
+<ResponseField name="results" type="array">
+  Array of matching memories sorted by relevance
+</ResponseField>
+
+<ResponseField name="results[].id" type="string">
+  Memory identifier
+</ResponseField>
+
+<ResponseField name="results[].content" type="any">
+  The stored memory content
+</ResponseField>
+
+<ResponseField name="results[].score" type="float">
+  Similarity score (0-1, higher is more relevant)
+</ResponseField>
+
+<ResponseField name="results[].timestamp" type="string">
+  When the memory was created
+</ResponseField>
+
+<ResponseField name="results[].metadata" type="object">
+  Additional metadata (if requested)
+</ResponseField>
+
+## Examples
+
+### Python SDK
+
+```python
+from agentmind import Memory
+
+memory = Memory(api_key="am_live_YOUR_API_KEY")
+
+# Simple search
+results = memory.recall("customer preferences")
+
+# With filters and limit
+results = memory.recall(
+    "billing issues",
+    limit=5,
+    user_id="user_123",
+    threshold=0.8  # Only highly relevant results
+)
+
+# Filter by metadata
+results = memory.recall(
+    "configuration settings",
+    metadata_filter={"category": "system", "priority": "high"}
+)
+
+# Process results
+for result in results:
+    print(f"Found: {result['content']} (relevance: {result['score']})")
+```
+
+### REST API
+
+```bash
+# Simple search
+curl -X POST https://api.agent-mind.com/v1/memories/search \
+  -H "Authorization: Bearer am_live_YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "customer preferences"
+  }'
+
+# Advanced search with filters
+curl -X POST https://api.agent-mind.com/v1/memories/search \
+  -H "Authorization: Bearer am_live_YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "billing issues",
+    "limit": 5,
+    "user_id": "user_123",
+    "threshold": 0.8,
+    "include_metadata": true,
+    "metadata_filter": {
+      "status": "unresolved"
+    }
+  }'
+```
+
+### Response Example
+
+```json
+{
+  "results": [
+    {
+      "id": "mem_abc123",
+      "content": "Customer prefers email communication over phone calls",
+      "score": 0.94,
+      "timestamp": "2024-03-20T14:30:00Z"
+    },
+    {
+      "id": "comm_prefs",
+      "content": {
+        "preference": "email",
+        "frequency": "weekly",
+        "format": "html"
+      },
+      "score": 0.89,
+      "timestamp": "2024-03-19T10:15:00Z"
+    },
+    {
+      "id": "mem_def456",
+      "content": "User disabled SMS notifications",
+      "score": 0.82,
+      "timestamp": "2024-03-18T09:00:00Z"
+    }
+  ]
+}
+```
+
+## Search Tips
+
+### Query Formulation
+
+- **Be specific**: "email preferences" returns better results than "preferences"
+- **Use natural language**: "how does the customer want to be contacted?" works well
+- **Include context**: "John Doe billing issues March 2024" for targeted results
+
+### Performance Optimization
+
+- Use `threshold` to filter out less relevant results
+- Apply `metadata_filter` to narrow search scope
+- Set appropriate `limit` to reduce response size
+- Cache frequently searched queries on the client side
+
+### Example Queries
+
+| Use Case | Query Example |
+|----------|---------------|
+| User preferences | "communication preferences for user_123" |
+| Recent issues | "problems reported in the last week" |
+| Configuration | "API settings and rate limits" |
+| Customer history | "all interactions with John Doe" |
+| System state | "current feature flags and configurations" |
+
+## Error Responses
+
+### 400 Bad Request
+
+```json
+{
+  "error": {
+    "code": "invalid_query",
+    "message": "Query must be between 1 and 500 characters"
+  }
+}
+```
+
+### 429 Rate Limited
+
+```json
+{
+  "error": {
+    "code": "rate_limit_exceeded",
+    "message": "Too many search requests. Please wait 60 seconds."
+  }
+}
+```
