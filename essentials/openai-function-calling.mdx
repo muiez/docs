@@ -1,0 +1,274 @@
+---
+title: 'OpenAI Function Calling'
+description: 'Use AgentMind as a tool with OpenAI function calling'
+icon: 'brain'
+---
+
+## Overview
+
+This example shows how to give your OpenAI-powered agent the ability to remember and recall information using function calling with AgentMind.
+
+## Setup
+
+```python
+import os
+import json
+from openai import OpenAI
+from agentmind import Memory
+
+# Initialize clients
+memory = Memory(api_key=os.getenv("AGENTMIND_API_KEY"))
+openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# User segmentation for memories
+USER_ID = "demo_user"  # Change this to segment memories by different users
+```
+
+## Define Memory Tools
+
+Configure the functions that OpenAI can call:
+
+```python
+AGENTMIND_TOOLS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "remember_information",
+            "description": "Store important information in long-term memory",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "type": "string",
+                        "description": "The information to remember"
+                    },
+                    "category": {
+                        "type": "string",
+                        "description": "Category of information",
+                        "enum": ["personal", "work", "preferences", "facts", "tasks"]
+                    },
+                    "importance": {
+                        "type": "number",
+                        "description": "Importance score from 0 to 1",
+                        "minimum": 0,
+                        "maximum": 1
+                    }
+                },
+                "required": ["content", "category"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "recall_information",
+            "description": "Search and retrieve relevant information from memory",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "What to search for in memory"
+                    },
+                    "category": {
+                        "type": "string",
+                        "description": "Optional category filter",
+                        "enum": ["personal", "work", "preferences", "facts", "tasks"]
+                    }
+                },
+                "required": ["query"]
+            }
+        }
+    }
+]
+```
+
+## Implement Tool Handlers
+
+Create functions to handle the OpenAI function calls:
+
+```python
+def handle_remember(content: str, category: str = "other", importance: float = 0.5):
+    """Store information using AgentMind"""
+    try:
+        memory_id = memory.remember(
+            content=content,
+            metadata={
+                "user_id": USER_ID,
+                "category": category,
+                "importance": importance,
+                "source": "openai_agent"
+            }
+        )
+        return {
+            "success": True,
+            "message": f"Stored in memory with ID: {memory_id}",
+            "memory_id": memory_id
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "message": f"Failed to store: {str(e)}"
+        }
+
+def handle_recall(query: str, category: str = None):
+    """Retrieve information from AgentMind"""
+    filters = {"user_id": USER_ID}
+    if category:
+        filters["category"] = category
+    
+    memories = memory.recall(
+        query=query,
+        metadata_filter=filters,
+        limit=5
+    )
+    
+    if memories:
+        return {
+            "success": True,
+            "memories": memories,
+            "count": len(memories)
+        }
+    else:
+        return {
+            "success": True,
+            "memories": [],
+            "message": "No relevant memories found"
+        }
+```
+
+## Complete Conversation Flow
+
+```python
+def chat_with_memory(user_message: str, conversation_history: list = None):
+    """Chat with an AI that has memory capabilities"""
+    
+    if conversation_history is None:
+        conversation_history = []
+    
+    # Add user message to history
+    conversation_history.append({"role": "user", "content": user_message})
+    
+    # Call OpenAI with function calling enabled
+    response = openai_client.chat.completions.create(
+        model="gpt-4",
+        messages=[
+            {
+                "role": "system",
+                "content": """You are a helpful assistant with long-term memory.
+                Use the remember_information function to store important facts.
+                Use the recall_information function to retrieve relevant context."""
+            },
+            *conversation_history
+        ],
+        tools=AGENTMIND_TOOLS,
+        tool_choice="auto"
+    )
+    
+    # Get the assistant's response
+    assistant_message = response.choices[0].message
+    
+    # Handle function calls if any
+    if assistant_message.tool_calls:
+        for tool_call in assistant_message.tool_calls:
+            function_name = tool_call.function.name
+            arguments = json.loads(tool_call.function.arguments)
+            
+            # Execute the appropriate function
+            if function_name == "remember_information":
+                result = handle_remember(**arguments)
+            elif function_name == "recall_information":
+                result = handle_recall(**arguments)
+            else:
+                result = {"error": "Unknown function"}
+            
+            # Add function result to conversation
+            conversation_history.append({
+                "role": "assistant",
+                "content": None,
+                "tool_calls": [tool_call]
+            })
+            conversation_history.append({
+                "role": "tool",
+                "content": json.dumps(result),
+                "tool_call_id": tool_call.id
+            })
+        
+        # Get final response after function execution
+        final_response = openai_client.chat.completions.create(
+            model="gpt-4",
+            messages=conversation_history,
+            tools=AGENTMIND_TOOLS
+        )
+        
+        return final_response.choices[0].message.content
+    
+    return assistant_message.content
+```
+
+## Usage Example
+
+```python
+# Example conversation
+print("Chat: Tell me about yourself")
+response = chat_with_memory("My name is Alice and I love hiking in Colorado")
+print(f"Assistant: {response}")
+
+print("\nChat: What outdoor activities do I enjoy?")
+response = chat_with_memory("What outdoor activities do I enjoy?")
+print(f"Assistant: {response}")
+# The assistant will recall that Alice loves hiking
+
+print("\nChat: Remember that I'm vegetarian")
+response = chat_with_memory("Remember that I'm vegetarian and allergic to nuts")
+print(f"Assistant: {response}")
+
+print("\nChat: What are my dietary restrictions?")
+response = chat_with_memory("What are my dietary restrictions?")
+print(f"Assistant: {response}")
+# The assistant will recall both vegetarian preference and nut allergy
+```
+
+## User Segmentation
+
+The `user_id` parameter allows you to segment memories for different users:
+
+```python
+# Memories for different users are kept separate
+def create_user_session(user_id: str):
+    """Create a memory-enabled session for a specific user"""
+    memory = Memory(api_key=os.getenv("AGENTMIND_API_KEY"))
+    
+    # Return a wrapper that includes user_id automatically
+    class UserMemory:
+        def remember(self, content, **kwargs):
+            return memory.remember(content, user_id=user_id, **kwargs)
+        def recall(self, query, **kwargs):
+            return memory.recall(query, user_id=user_id, **kwargs)
+    
+    return UserMemory()
+
+# Alice's memories
+alice_memory = create_user_session("alice")
+alice_memory.remember("Loves hiking in Colorado")
+
+# Bob's memories (completely separate)
+bob_memory = create_user_session("bob")
+bob_memory.remember("Prefers city life and museums")
+
+# When Alice asks "What do I enjoy?"
+alice_memories = alice_memory.recall("what do I enjoy?")
+# Returns: "Loves hiking in Colorado"
+
+# When Bob asks the same question
+bob_memories = bob_memory.recall("what do I enjoy?")
+# Returns: "Prefers city life and museums"
+```
+
+## Best Practices
+
+1. **Always include user_id** for multi-user applications
+2. **Use categories** to organize different types of information
+3. **Set importance scores** to prioritize critical information
+4. **Implement error handling** for API failures
+5. **Consider privacy** - don't store sensitive information without encryption

@@ -57,8 +57,7 @@
       "group": "Get Started",
       "pages": [
         "introduction",
-        "quickstart",
-        "development"
+        "quickstart"
       ]
     },
     {
@@ -70,14 +69,18 @@
       ]
     },
     {
-      "group": "Guides",
+      "group": "Examples",
       "pages": [
-        "essentials/markdown",
-        "essentials/code",
-        "essentials/images",
-        "essentials/settings",
-        "essentials/navigation",
-        "essentials/reusable-snippets"
+        "essentials/quick-examples",
+        "essentials/openai-function-calling",
+        "essentials/langchain-integration",
+        "essentials/smolagents-tool"
+      ]
+    },
+    {
+      "group": "Configuration",
+      "pages": [
+        "essentials/settings"
       ]
     },
     {
@@ -116,10 +119,10 @@
   },
   "metadata": {
     "og:title": "AgentMind Documentation",
-    "og:description": "Give your AI agents memory they control",
+    "og:description": "Powerful memory management for AI agents",
     "og:image": "/images/og-image.png",
     "twitter:card": "summary_large_image",
     "twitter:title": "AgentMind - AI Agent Memory Management",
-    "twitter:description": "Autonomous memory management for AI agents"
+    "twitter:description": "Smart memory management for AI agents"
   }
 }

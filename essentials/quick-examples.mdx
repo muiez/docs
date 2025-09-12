@@ -1,0 +1,370 @@
+---
+title: 'Quick Examples'
+description: 'Common use cases and code snippets for AgentMind'
+icon: 'code'
+---
+
+## Customer Support Bot
+
+A bot that remembers customer issues and preferences:
+
+```python
+from agentmind import Memory
+from datetime import datetime
+
+memory = Memory(api_key="am_live_YOUR_API_KEY")
+
+class CustomerSupportBot:
+    def __init__(self, customer_id: str):
+        self.customer_id = customer_id
+        self.memory = memory
+    
+    def handle_issue(self, issue_description: str):
+        # Store the issue
+        issue_id = self.memory.remember(
+            content={
+                "issue": issue_description,
+                "status": "open",
+                "created_at": datetime.now().isoformat()
+            },
+            user_id=self.customer_id,
+            metadata={
+                "category": "support_ticket",
+                "priority": self.determine_priority(issue_description)
+            }
+        )
+        
+        # Check for similar past issues
+        similar_issues = self.memory.recall(
+            query=issue_description,
+            user_id=self.customer_id,
+            filters={"category": "support_ticket"},
+            limit=3
+        )
+        
+        if similar_issues:
+            return f"I see you've had similar issues before. Let me help you with this."
+        else:
+            return f"I've logged your issue (ID: {issue_id}). Let me help you resolve this."
+    
+    def determine_priority(self, issue: str):
+        keywords = {
+            "urgent": "high",
+            "critical": "high",
+            "broken": "high",
+            "minor": "low",
+            "question": "low"
+        }
+        
+        issue_lower = issue.lower()
+        for keyword, priority in keywords.items():
+            if keyword in issue_lower:
+                return priority
+        return "medium"
+
+# Usage
+bot = CustomerSupportBot("customer_789")
+response = bot.handle_issue("My dashboard is broken and showing errors")
+print(response)
+```
+
+## Personal AI Assistant
+
+An assistant that learns user preferences over time:
+
+```python
+class PersonalAssistant:
+    def __init__(self, user_id: str):
+        self.user_id = user_id
+        self.memory = Memory(api_key="am_live_YOUR_API_KEY")
+    
+    def learn_preference(self, preference: str, category: str = "general"):
+        """Learn and remember user preferences"""
+        self.memory.remember(
+            content=preference,
+            user_id=self.user_id,
+            metadata={
+                "category": "preference",
+                "preference_type": category,
+                "learned_at": datetime.now().isoformat()
+            }
+        )
+        return f"I'll remember that you {preference}"
+    
+    def suggest_based_on_preferences(self, context: str):
+        """Make suggestions based on learned preferences"""
+        preferences = self.memory.recall(
+            query=context,
+            user_id=self.user_id,
+            filters={"category": "preference"},
+            limit=5
+        )
+        
+        if preferences:
+            suggestions = self.generate_suggestions(preferences, context)
+            return suggestions
+        else:
+            return "I'm still learning your preferences. Tell me more about what you like!"
+    
+    def get_daily_brief(self):
+        """Generate personalized daily brief"""
+        # Get user's interests
+        interests = self.memory.recall(
+            query="interests hobbies topics",
+            user_id=self.user_id,
+            filters={"category": "preference"}
+        )
+        
+        # Get pending tasks
+        tasks = self.memory.recall(
+            query="tasks todo reminders",
+            user_id=self.user_id,
+            filters={
+                "category": "task",
+                "status": "pending"
+            }
+        )
+        
+        return {
+            "interests": interests,
+            "tasks": tasks,
+            "greeting": self.get_personalized_greeting()
+        }
+
+# Usage
+assistant = PersonalAssistant("user_456")
+assistant.learn_preference("prefer morning meetings before 10am", "schedule")
+assistant.learn_preference("like Italian and Japanese cuisine", "food")
+
+suggestions = assistant.suggest_based_on_preferences("lunch recommendations")
+```
+
+## Code Review Assistant
+
+An AI that remembers coding patterns and review feedback:
+
+```python
+class CodeReviewAssistant:
+    def __init__(self, repo_name: str):
+        self.repo_name = repo_name
+        self.memory = Memory(api_key="am_live_YOUR_API_KEY")
+    
+    def review_code(self, code: str, file_path: str):
+        # Check for similar code patterns reviewed before
+        similar_patterns = self.memory.recall(
+            query=f"code review {file_path} patterns",
+            filters={
+                "repo": self.repo_name,
+                "category": "code_review"
+            }
+        )
+        
+        issues = []
+        suggestions = []
+        
+        # Apply learned patterns
+        for pattern in similar_patterns:
+            if self.matches_pattern(code, pattern):
+                suggestions.append(pattern['suggestion'])
+        
+        # Store this review for future learning
+        self.memory.remember(
+            content={
+                "file": file_path,
+                "code_snippet": code[:500],  # Store first 500 chars
+                "issues": issues,
+                "suggestions": suggestions,
+                "timestamp": datetime.now().isoformat()
+            },
+            metadata={
+                "repo": self.repo_name,
+                "category": "code_review",
+                "language": self.detect_language(file_path)
+            }
+        )
+        
+        return {
+            "issues": issues,
+            "suggestions": suggestions,
+            "similar_reviews": len(similar_patterns)
+        }
+    
+    def learn_pattern(self, pattern: str, issue: str, suggestion: str):
+        """Learn from code review feedback"""
+        self.memory.remember(
+            content={
+                "pattern": pattern,
+                "issue": issue,
+                "suggestion": suggestion
+            },
+            metadata={
+                "repo": self.repo_name,
+                "category": "code_pattern",
+                "type": "learned"
+            }
+        )
+
+# Usage
+reviewer = CodeReviewAssistant("my-project")
+reviewer.learn_pattern(
+    pattern="console.log in production",
+    issue="Debug logs left in production code",
+    suggestion="Remove console.log or use proper logging library"
+)
+
+review = reviewer.review_code(
+    code="function getData() { console.log('fetching'); return fetch('/api/data'); }",
+    file_path="src/api.js"
+)
+```
+
+## Trading Strategy Memory
+
+Remember and analyze trading decisions:
+
+```python
+class TradingAssistant:
+    def __init__(self, trader_id: str):
+        self.trader_id = trader_id
+        self.memory = Memory(api_key="am_live_YOUR_API_KEY")
+    
+    def record_trade(self, trade: dict):
+        """Record a trade decision and outcome"""
+        self.memory.remember(
+            content=trade,
+            user_id=self.trader_id,
+            metadata={
+                "category": "trade",
+                "asset": trade['symbol'],
+                "outcome": trade.get('outcome', 'pending'),
+                "strategy": trade.get('strategy', 'unknown')
+            }
+        )
+    
+    def analyze_performance(self, strategy: str = None):
+        """Analyze past trading performance"""
+        filters = {"category": "trade"}
+        if strategy:
+            filters["strategy"] = strategy
+        
+        past_trades = self.memory.recall(
+            query=f"trading performance {strategy or 'all strategies'}",
+            user_id=self.trader_id,
+            filters=filters,
+            limit=100
+        )
+        
+        # Calculate metrics
+        total_trades = len(past_trades)
+        winning_trades = sum(1 for t in past_trades if t.get('outcome') == 'profit')
+        
+        return {
+            "total_trades": total_trades,
+            "win_rate": winning_trades / total_trades if total_trades > 0 else 0,
+            "strategies_used": list(set(t.get('strategy') for t in past_trades))
+        }
+    
+    def get_similar_setups(self, current_setup: dict):
+        """Find similar historical trading setups"""
+        similar = self.memory.recall(
+            query=f"{current_setup['symbol']} {current_setup['pattern']} setup",
+            user_id=self.trader_id,
+            filters={
+                "category": "trade",
+                "asset": current_setup['symbol']
+            },
+            limit=10
+        )
+        
+        return similar
+
+# Usage
+trader = TradingAssistant("trader_123")
+
+trader.record_trade({
+    "symbol": "BTC/USD",
+    "action": "buy",
+    "price": 45000,
+    "strategy": "momentum",
+    "pattern": "bullish_flag",
+    "outcome": "profit",
+    "return_pct": 5.2
+})
+
+performance = trader.analyze_performance("momentum")
+print(f"Momentum strategy win rate: {performance['win_rate']:.2%}")
+```
+
+## Session Management
+
+Track user sessions and context:
+
+```python
+class SessionManager:
+    def __init__(self):
+        self.memory = Memory(api_key="am_live_YOUR_API_KEY")
+    
+    def start_session(self, user_id: str, session_type: str = "chat"):
+        """Start a new user session"""
+        session_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        
+        self.memory.remember(
+            content={
+                "session_start": datetime.now().isoformat(),
+                "type": session_type,
+                "status": "active"
+            },
+            user_id=user_id,
+            session_id=session_id,
+            metadata={"category": "session_management"}
+        )
+        
+        return session_id
+    
+    def add_to_session(self, session_id: str, content: dict):
+        """Add content to existing session"""
+        self.memory.remember(
+            content=content,
+            session_id=session_id,
+            metadata={
+                "category": "session_content",
+                "timestamp": datetime.now().isoformat()
+            }
+        )
+    
+    def get_session_context(self, session_id: str):
+        """Retrieve all content from a session"""
+        return self.memory.recall(
+            query=f"session {session_id}",
+            filters={"session_id": session_id},
+            limit=50
+        )
+    
+    def end_session(self, session_id: str):
+        """Mark session as ended"""
+        self.memory.remember(
+            content={
+                "session_end": datetime.now().isoformat(),
+                "status": "completed"
+            },
+            session_id=session_id,
+            metadata={"category": "session_management"}
+        )
+
+# Usage
+sessions = SessionManager()
+session_id = sessions.start_session("user_789", "support")
+
+sessions.add_to_session(session_id, {
+    "message": "How do I reset my password?",
+    "type": "user_query"
+})
+
+sessions.add_to_session(session_id, {
+    "message": "Click on 'Forgot Password' on the login page",
+    "type": "agent_response"
+})
+
+context = sessions.get_session_context(session_id)
+sessions.end_session(session_id)
+```

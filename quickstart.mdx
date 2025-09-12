@@ -34,7 +34,8 @@ AgentMind accepts any data type - strings, dicts, lists. Use metadata for organi
 # Store user-specific preference
 memory.remember(
     "Prefers email over phone calls, send weekly summaries",
-    metadata={"user_id": "user_123", "category": "preferences"}
+    user_id="user_123",
+    metadata={"category": "preferences"}
 )
 
 # Store system configuration with metadata
@@ -50,7 +51,7 @@ memory.remember({
     "features": ["sso", "analytics", "priority_support"],
     "contract_value": 50000,
     "renewal_date": "2024-12-01"
-}, metadata={"user_id": "user_123", "type": "profile"})
+}, user_id="user_123", metadata={"type": "profile"})
 ```
 
 ### Retrieve Memories

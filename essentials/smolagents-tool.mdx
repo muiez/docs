@@ -1,0 +1,376 @@
+---
+title: 'Smolagents Integration'
+description: 'Use AgentMind as a tool with HuggingFace Smolagents'
+icon: 'toolbox'
+---
+
+## Overview
+
+Integrate AgentMind with HuggingFace's Smolagents framework using the `@tool` decorator to give your agents persistent memory capabilities.
+
+## Setup
+
+```python
+from smolagents import CodeAgent, Tool, tool
+from agentmind import Memory
+import os
+
+# Initialize AgentMind
+memory = Memory(api_key=os.getenv("AGENTMIND_API_KEY"))
+```
+
+## Create Memory Tools
+
+Define AgentMind tools using the `@tool` decorator:
+
+```python
+@tool
+def remember_information(content: str, category: str = "general") -> str:
+    """
+    Store important information in memory for later retrieval.
+    
+    Args:
+        content: The information to remember
+        category: Category of information (preferences, facts, tasks, etc.)
+    
+    Returns:
+        Confirmation message with memory ID
+    """
+    memory_id = memory.remember(
+        content=content,
+        metadata={
+            "category": category,
+            "source": "smolagents",
+            "timestamp": datetime.now().isoformat()
+        }
+    )
+    return f"Successfully stored in memory with ID: {memory_id}"
+
+@tool
+def recall_information(query: str, category: str = None) -> str:
+    """
+    Search and retrieve relevant information from memory.
+    
+    Args:
+        query: What to search for in memory
+        category: Optional category filter
+    
+    Returns:
+        Retrieved memories or message if nothing found
+    """
+    filters = {}
+    if category:
+        filters["category"] = category
+    
+    memories = memory.recall(
+        query=query,
+        metadata_filter=filters,
+        limit=5
+    )
+    
+    if memories:
+        result = "Found relevant memories:\n"
+        for i, mem in enumerate(memories, 1):
+            content = mem.get('content', mem)
+            result += f"{i}. {content}\n"
+        return result
+    else:
+        return "No relevant memories found for your query."
+
+@tool
+def list_categories() -> str:
+    """
+    List all available memory categories.
+    
+    Returns:
+        List of categories with memory counts
+    """
+    # Get all memories to analyze categories
+    all_memories = memory.recall("*", limit=100)
+    
+    categories = {}
+    for mem in all_memories:
+        cat = mem.get('metadata', {}).get('category', 'uncategorized')
+        categories[cat] = categories.get(cat, 0) + 1
+    
+    if categories:
+        result = "Memory categories:\n"
+        for cat, count in categories.items():
+            result += f"- {cat}: {count} memories\n"
+        return result
+    else:
+        return "No memories stored yet."
+```
+
+## User-Specific Memory Tools
+
+Create tools that segment memories by user:
+
+```python
+def create_user_memory_tools(user_id: str):
+    """Create memory tools specific to a user"""
+    
+    @tool
+    def remember_user_info(content: str, info_type: str = "general") -> str:
+        """
+        Remember information about the current user.
+        
+        Args:
+            content: Information to remember about the user
+            info_type: Type of information (preference, fact, goal, etc.)
+        """
+        memory_id = memory.remember(
+            content=content,
+            metadata={
+                "user_id": user_id,
+                "type": info_type,
+                "category": "user_info"
+            }
+        )
+        return f"Remembered user information: {memory_id}"
+    
+    @tool
+    def get_user_context() -> str:
+        """
+        Get all relevant context about the current user.
+        """
+        user_memories = memory.recall(
+            query="user preferences facts goals history",
+            metadata_filter={"user_id": user_id},
+            limit=10
+        )
+        
+        if user_memories:
+            context = f"User context for {user_id}:\n"
+            for mem in user_memories:
+                context += f"- {mem.get('content', mem)}\n"
+            return context
+        else:
+            return f"No stored information for user {user_id}"
+    
+    return [remember_user_info, get_user_context]
+```
+
+## Create the Agent
+
+Initialize a Smolagents agent with memory tools:
+
+```python
+from smolagents import CodeAgent, HfApiModel
+
+# Initialize the LLM
+model = HfApiModel("meta-llama/Llama-3.3-70B-Instruct")
+
+# Create agent with memory tools
+agent = CodeAgent(
+    tools=[
+        remember_information,
+        recall_information,
+        list_categories
+    ],
+    model=model,
+    system_prompt="""You are a helpful assistant with memory capabilities.
+    Use the remember_information tool to store important facts and preferences.
+    Use the recall_information tool to retrieve relevant context when needed.
+    Always check your memory for relevant context before answering questions."""
+)
+
+# Run the agent
+result = agent.run("My name is Alice and I work at OpenAI on the GPT team")
+print(result)
+
+result = agent.run("What do you remember about me?")
+print(result)
+```
+
+## Advanced: Task-Oriented Memory
+
+Create specialized memory tools for task management:
+
+```python
+@tool
+def create_task(title: str, description: str, priority: str = "medium") -> str:
+    """
+    Create a new task with priority level.
+    
+    Args:
+        title: Task title
+        description: Detailed task description
+        priority: Priority level (low, medium, high)
+    """
+    task_id = f"task_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    
+    memory.remember(
+        content={
+            "title": title,
+            "description": description,
+            "status": "pending",
+            "created_at": datetime.now().isoformat()
+        },
+        metadata={
+            "task_id": task_id,
+            "category": "task",
+            "priority": priority,
+            "status": "pending"
+        }
+    )
+    
+    return f"Created task '{title}' with ID: {task_id}"
+
+@tool
+def get_pending_tasks(priority: str = None) -> str:
+    """
+    Get all pending tasks, optionally filtered by priority.
+    
+    Args:
+        priority: Optional priority filter (low, medium, high)
+    """
+    filters = {
+        "category": "task",
+        "status": "pending"
+    }
+    if priority:
+        filters["priority"] = priority
+    
+    tasks = memory.recall(
+        query="pending tasks to do",
+        metadata_filter=filters,
+        limit=20
+    )
+    
+    if tasks:
+        result = "Pending tasks:\n"
+        for task in tasks:
+            content = task.get('content', {})
+            title = content.get('title', 'Untitled')
+            priority = task.get('metadata', {}).get('priority', 'medium')
+            result += f"- [{priority.upper()}] {title}\n"
+        return result
+    else:
+        return "No pending tasks found."
+
+@tool
+def complete_task(task_id: str, notes: str = "") -> str:
+    """
+    Mark a task as completed with optional notes.
+    
+    Args:
+        task_id: The task ID to complete
+        notes: Optional completion notes
+    """
+    # Store completion record
+    memory.remember(
+        content={
+            "task_id": task_id,
+            "completed_at": datetime.now().isoformat(),
+            "notes": notes
+        },
+        metadata={
+            "task_id": task_id,
+            "category": "task",
+            "status": "completed"
+        }
+    )
+    
+    return f"Task {task_id} marked as completed"
+```
+
+## Multimodal Memory
+
+Store and retrieve different types of content:
+
+```python
+@tool
+def remember_code_snippet(code: str, language: str, description: str) -> str:
+    """
+    Remember a code snippet for future reference.
+    
+    Args:
+        code: The code snippet to remember
+        language: Programming language
+        description: What the code does
+    """
+    memory_id = memory.remember(
+        content={
+            "code": code,
+            "language": language,
+            "description": description
+        },
+        metadata={
+            "category": "code_snippet",
+            "language": language,
+            "type": "reference"
+        }
+    )
+    return f"Stored code snippet: {memory_id}"
+
+@tool
+def find_code_examples(query: str, language: str = None) -> str:
+    """
+    Find relevant code examples from memory.
+    
+    Args:
+        query: What kind of code to search for
+        language: Optional language filter
+    """
+    filters = {"category": "code_snippet"}
+    if language:
+        filters["language"] = language
+    
+    examples = memory.recall(
+        query=query,
+        metadata_filter=filters,
+        limit=3
+    )
+    
+    if examples:
+        result = "Found code examples:\n\n"
+        for ex in examples:
+            content = ex.get('content', {})
+            lang = content.get('language', 'unknown')
+            desc = content.get('description', '')
+            code = content.get('code', '')
+            result += f"**{desc}** ({lang}):\n```{lang}\n{code}\n```\n\n"
+        return result
+    else:
+        return "No code examples found matching your query."
+```
+
+## Usage Example
+
+```python
+# Create an agent with all memory tools
+agent = CodeAgent(
+    tools=[
+        remember_information,
+        recall_information,
+        create_task,
+        get_pending_tasks,
+        complete_task,
+        remember_code_snippet,
+        find_code_examples
+    ],
+    model=model,
+    system_prompt="""You are a helpful coding assistant with memory.
+    Remember important information, code snippets, and manage tasks.
+    Always check memory for relevant context before responding."""
+)
+
+# Example conversation
+agent.run("Remember that I prefer Python type hints and async/await patterns")
+agent.run("Create a task to refactor the authentication module with high priority")
+agent.run("Store this code snippet: async def fetch_data(url: str) -> dict: ...")
+agent.run("What are my coding preferences?")
+agent.run("Show me my high priority tasks")
+agent.run("Find async code examples")
+```
+
+## Best Practices
+
+1. **Tool Naming**: Use clear, descriptive names for your tools
+2. **Documentation**: Always include docstrings with Args and Returns
+3. **Error Handling**: Wrap memory operations in try-except blocks
+4. **Metadata**: Use metadata to organize and filter memories effectively
+5. **User Context**: Include user_id in metadata for multi-user applications
+6. **Categories**: Use consistent category names across your tools
+7. **Limits**: Set appropriate limits for recall operations to avoid overwhelming the agent

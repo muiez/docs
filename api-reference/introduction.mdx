@@ -5,7 +5,7 @@ description: 'Complete API documentation for AgentMind'
 
 ## Overview
 
-AgentMind provides both a Python SDK and REST API for managing agent memory. The API allows you to store, retrieve, and search memories using natural language.
+AgentMind provides a fully-featured REST API for managing agent memory, perfect for any programming language or platform. You can also use our Python SDK for convenience, but the REST API gives you complete control and flexibility.
 
 ## Base URL
 
@@ -132,6 +132,36 @@ npm install @agentmind/sdk
 
 ## Quick Examples
 
+### REST API (Any Language)
+
+```bash
+# Store memory with metadata
+curl -X POST https://api.agent-mind.com/v1/memories \
+  -H "Authorization: Bearer am_live_YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "User prefers dark mode with high contrast",
+    "metadata": {
+      "user_id": "user_123",
+      "category": "ui_preferences"
+    }
+  }'
+
+# Retrieve specific memory
+curl https://api.agent-mind.com/v1/memories/mem_abc123 \
+  -H "Authorization: Bearer am_live_YOUR_API_KEY"
+
+# Search memories with natural language
+curl -X POST https://api.agent-mind.com/v1/memories/search \
+  -H "Authorization: Bearer am_live_YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "what are the user interface preferences?",
+    "metadata_filter": {"user_id": "user_123"},
+    "limit": 5
+  }'
+```
+
 ### Python SDK
 
 ```python
@@ -140,32 +170,15 @@ from agentmind import Memory
 # Initialize
 memory = Memory(api_key="am_live_YOUR_API_KEY")
 
-# Store
-memory.remember("User prefers dark mode", id="ui_prefs")
+# Store with metadata
+memory.remember(
+    "User prefers dark mode with high contrast",
+    metadata={"user_id": "user_123", "category": "ui_preferences"}
+)
 
-# Retrieve
-pref = memory.get("ui_prefs")
-
-# Search
-results = memory.recall("user interface preferences")
-```
-
-### REST API
-
-```bash
-# Store memory
-curl -X POST https://api.agent-mind.com/v1/memories \
-  -H "Authorization: Bearer am_live_YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"content": "User prefers dark mode", "id": "ui_prefs"}'
-
-# Retrieve memory
-curl https://api.agent-mind.com/v1/memories/ui_prefs \
-  -H "Authorization: Bearer am_live_YOUR_API_KEY"
-
-# Search memories
-curl https://api.agent-mind.com/v1/memories/search \
-  -H "Authorization: Bearer am_live_YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "user interface preferences", "limit": 5}'
+# Search with filters
+results = memory.recall(
+    "user interface preferences",
+    metadata_filter={"user_id": "user_123"}
+)
 ```

@@ -1,0 +1,328 @@
+---
+title: 'LangChain Integration'
+description: 'Build LangChain agents with persistent memory using AgentMind'
+icon: 'link'
+---
+
+## Overview
+
+Integrate AgentMind with LangChain to create agents that maintain conversation history and can access long-term memory across sessions.
+
+## Setup
+
+```python
+import os
+from langchain.agents import AgentExecutor, create_openai_tools_agent
+from langchain_openai import ChatOpenAI
+from langchain.tools import Tool
+from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
+from agentmind import Memory
+
+# Initialize AgentMind
+memory = Memory(api_key=os.getenv("AGENTMIND_API_KEY"))
+USER_ID = "langchain_user_001"
+
+# Initialize LLM
+llm = ChatOpenAI(
+    temperature=0.7,
+    model="gpt-4",
+    openai_api_key=os.getenv("OPENAI_API_KEY")
+)
+```
+
+## Create Memory Tools
+
+Define LangChain tools that interact with AgentMind:
+
+```python
+def search_memory(query: str) -> str:
+    """Search through long-term memory for relevant information."""
+    memories = memory.recall(
+        query=query,
+        user_id=USER_ID,
+        limit=5
+    )
+    
+    if memories:
+        result = "Found relevant memories:\n"
+        for i, mem in enumerate(memories, 1):
+            result += f"{i}. {mem['content']}\n"
+        return result
+    else:
+        return "No relevant memories found."
+
+def store_important_fact(fact: str) -> str:
+    """Store an important fact in long-term memory."""
+    memory_id = memory.remember(
+        content=fact,
+        user_id=USER_ID,
+        metadata={
+            "type": "important_fact",
+            "source": "langchain_agent",
+            "importance": 0.8
+        }
+    )
+    return f"Successfully stored fact with ID: {memory_id}"
+
+def get_user_profile() -> str:
+    """Retrieve user profile information from memory."""
+    profile_memories = memory.recall(
+        query="user personal information profile preferences",
+        user_id=USER_ID,
+        filters={"type": "user_profile"},
+        limit=10
+    )
+    
+    if profile_memories:
+        profile = "User Profile:\n"
+        for mem in profile_memories:
+            profile += f"- {mem['content']}\n"
+        return profile
+    else:
+        return "No user profile found. Ask the user about themselves."
+
+# Create LangChain Tool objects
+tools = [
+    Tool(
+        name="SearchMemory",
+        func=search_memory,
+        description="Search long-term memory for relevant information"
+    ),
+    Tool(
+        name="StoreImportantFact",
+        func=store_important_fact,
+        description="Store an important fact in long-term memory"
+    ),
+    Tool(
+        name="GetUserProfile",
+        func=get_user_profile,
+        description="Retrieve user profile and preferences"
+    )
+]
+```
+
+## Custom Memory Class
+
+Create a custom LangChain memory class that uses AgentMind:
+
+```python
+from langchain.memory import BaseMemory
+from typing import Dict, Any, List
+
+class AgentMindMemory(BaseMemory):
+    """Custom LangChain memory backed by AgentMind"""
+    
+    def __init__(self, memory: Memory, user_id: str, session_id: str = None):
+        self.memory = memory
+        self.user_id = user_id
+        self.session_id = session_id or f"session_{datetime.now().isoformat()}"
+        self.conversation_history = []
+    
+    @property
+    def memory_variables(self) -> List[str]:
+        return ["history", "context"]
+    
+    def save_context(self, inputs: Dict[str, Any], outputs: Dict[str, str]) -> None:
+        """Save conversation turn to AgentMind"""
+        # Store the conversation turn
+        self.memory.remember(
+            content={
+                "input": inputs.get("input", ""),
+                "output": outputs.get("output", ""),
+                "timestamp": datetime.now().isoformat()
+            },
+            metadata={
+                "user_id": self.user_id,
+                "session_id": self.session_id,
+                "type": "conversation"
+            }
+        )
+        
+        # Keep local history for current session
+        self.conversation_history.append({
+            "input": inputs.get("input", ""),
+            "output": outputs.get("output", "")
+        })
+    
+    def load_memory_variables(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
+        """Load relevant context from AgentMind"""
+        # Get recent conversation history
+        recent_history = self.conversation_history[-5:] if self.conversation_history else []
+        
+        # Search for relevant long-term memories
+        query = inputs.get("input", "")
+        relevant_memories = self.memory.recall(
+            query=query,
+            metadata_filter={"user_id": self.user_id},
+            limit=3
+        )
+        
+        return {
+            "history": recent_history,
+            "context": relevant_memories
+        }
+    
+    def clear(self) -> None:
+        """Clear current session history"""
+        self.conversation_history = []
+```
+
+## Build the Agent
+
+Create a LangChain agent with memory and tools:
+
+```python
+# Initialize custom memory
+agent_memory = AgentMindMemory(
+    memory=memory,
+    user_id=USER_ID,
+    session_id="session_001"
+)
+
+# Create prompt template
+prompt = ChatPromptTemplate.from_messages([
+    ("system", """You are a helpful assistant with long-term memory capabilities.
+    You can remember important information about users and recall it when needed.
+    
+    Available context from memory:
+    {context}
+    
+    Recent conversation history:
+    {history}
+    
+    Use your tools to store and retrieve information as needed."""),
+    ("human", "{input}"),
+    MessagesPlaceholder(variable_name="agent_scratchpad")
+])
+
+# Create the agent
+agent = create_openai_tools_agent(
+    llm=llm,
+    tools=tools,
+    prompt=prompt
+)
+
+# Create agent executor
+agent_executor = AgentExecutor(
+    agent=agent,
+    tools=tools,
+    memory=agent_memory,
+    verbose=True,
+    return_intermediate_steps=True
+)
+```
+
+## Usage Examples
+
+```python
+# Example 1: Personal information
+response = agent_executor.invoke({
+    "input": "My name is Sarah and I work as a data scientist at TechCorp"
+})
+print(response["output"])
+# Agent stores this information
+
+# Example 2: Preferences
+response = agent_executor.invoke({
+    "input": "I prefer Python over R for data analysis, and I love using pandas"
+})
+print(response["output"])
+
+# Example 3: Recall information
+response = agent_executor.invoke({
+    "input": "What do you know about my work and preferences?"
+})
+print(response["output"])
+# Agent recalls: Sarah, data scientist at TechCorp, prefers Python and pandas
+
+# Example 4: Task management
+response = agent_executor.invoke({
+    "input": "Remember that I need to finish the quarterly report by Friday"
+})
+print(response["output"])
+
+response = agent_executor.invoke({
+    "input": "What tasks do I have coming up?"
+})
+print(response["output"])
+# Agent recalls the quarterly report deadline
+```
+
+## Advanced: Multi-Agent System
+
+Create multiple agents with shared memory:
+
+```python
+def create_specialized_agent(role: str, specialization: str):
+    """Create a specialized agent with access to shared memory"""
+    
+    specialized_tools = tools.copy()
+    
+    # Add role-specific tool
+    def store_specialized_knowledge(knowledge: str) -> str:
+        return memory.remember(
+            content=knowledge,
+            metadata={
+                "user_id": USER_ID,
+                "agent_role": role,
+                "specialization": specialization,
+                "type": "specialized_knowledge"
+            }
+        )
+    
+    specialized_tools.append(
+        Tool(
+            name=f"Store{role}Knowledge",
+            func=store_specialized_knowledge,
+            description=f"Store {specialization}-specific knowledge"
+        )
+    )
+    
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", f"""You are a {role} specializing in {specialization}.
+        You have access to shared memory with other agents.
+        Collaborate by storing and retrieving relevant information.
+        
+        Context: {{context}}
+        History: {{history}}"""),
+        ("human", "{input}"),
+        MessagesPlaceholder(variable_name="agent_scratchpad")
+    ])
+    
+    agent = create_openai_tools_agent(
+        llm=llm,
+        tools=specialized_tools,
+        prompt=prompt
+    )
+    
+    return AgentExecutor(
+        agent=agent,
+        tools=specialized_tools,
+        memory=agent_memory,
+        verbose=True
+    )
+
+# Create specialized agents
+research_agent = create_specialized_agent("Researcher", "Technology Trends")
+analyst_agent = create_specialized_agent("Analyst", "Data Analysis")
+
+# Agents can share knowledge
+research_agent.invoke({
+    "input": "Store this: GPT-5 rumors suggest 10x performance improvement"
+})
+
+analyst_agent.invoke({
+    "input": "What are the latest AI trends I should analyze?"
+})
+# Analyst can access researcher's stored knowledge
+```
+
+## Best Practices
+
+1. **Session Management**: Use session_id to group related conversations
+2. **User Segmentation**: Always include user_id for multi-user applications
+3. **Memory Types**: Use metadata to categorize different types of memories
+4. **Context Limits**: Limit recalled memories to avoid overwhelming the context
+5. **Cleanup**: Implement memory cleanup for old or irrelevant information
+6. **Error Handling**: Wrap memory operations in try-catch blocks
+7. **Privacy**: Be mindful of what information you store, especially PII

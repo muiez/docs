@@ -1,6 +1,6 @@
 ---
 title: Introduction
-description: "Give your AI agents memory they control"
+description: "Powerful memory management for AI agents"
 ---
 
 <img
@@ -16,19 +16,19 @@ description: "Give your AI agents memory they control"
 
 # AgentMind
 
-AgentMind is a powerful memory management system for AI agents. It gives your agents the ability to remember important information, learn from interactions, and maintain context across conversations - all under their autonomous control.
+AgentMind is a powerful memory management system for AI agents. It gives your agents the ability to remember important information, learn from interactions, and maintain context across conversations.
 
 ## Why AgentMind?
 
-Your AI agents need memory they can control. AgentMind is a tool you give to your agents, allowing them to decide what to remember, when to remember it, and how to use that knowledge. Instead of you managing context and memory, your agent does it autonomously.
+Your AI agents need effective memory management. AgentMind provides tools that allow your agents to store and recall information intelligently, helping them make better decisions based on past interactions and learned context.
 
 <CardGroup cols={2}>
   <Card
-    title="Agent-Controlled Memory"
+    title="Smart Memory Management"
     icon="brain"
     href="/quickstart"
   >
-    Give your agents autonomous control over what they remember and recall
+    Enable intelligent storage and retrieval of important information
   </Card>
   <Card
     title="Natural Language Search"
@@ -57,28 +57,28 @@ Your AI agents need memory they can control. AgentMind is a tool you give to you
 
 <CardGroup cols={2}>
   <Card
-    title="Customer Service Bots"
-    icon="headset"
+    title="AI Coding Assistants"
+    icon="code"
   >
-    Remember past issues, preferences, and context for better support
+    Remember project structure, coding patterns, and team conventions across sessions
   </Card>
   <Card
-    title="Personal Assistants"
-    icon="robot"
+    title="Financial Analysis Bots"
+    icon="chart-line"
   >
-    Track user preferences, habits, and long-term goals
+    Track market conditions, trading strategies, and portfolio performance over time
   </Card>
   <Card
-    title="Multi-Step Workflows"
-    icon="diagram-project"
+    title="Research Assistants"
+    icon="microscope"
   >
-    Maintain context across complex, multi-step processes
+    Maintain context across research papers, experiments, and evolving hypotheses
   </Card>
   <Card
-    title="Learning Agents"
-    icon="graduation-cap"
+    title="Sales & CRM Agents"
+    icon="handshake"
   >
-    Improve performance by learning from past interactions
+    Remember client interactions, deal progress, and relationship history
   </Card>
 </CardGroup>
 
@@ -90,10 +90,10 @@ from agentmind import Memory
 # Initialize memory for your agent
 memory = Memory(api_key="am_live_YOUR_API_KEY")
 
-# Your agent decides to remember something important
+# Store important information
 memory.remember("Customer prefers email over phone calls")
 
-# Later, your agent recalls relevant information
+# Later, retrieve relevant information
 context = memory.recall("customer communication preferences")
 # Returns: "Customer prefers email over phone calls"
 ```
