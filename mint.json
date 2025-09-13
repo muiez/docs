@@ -100,12 +100,10 @@
     }
   ],
   "api": {
-    "mdx": {
-      "server": "https://api.agent-mind.com/v1",
-      "auth": {
-        "method": "bearer",
-        "name": "Authorization"
-      }
+    "baseUrl": "https://api.agent-mind.com/v1",
+    "auth": {
+      "method": "bearer",
+      "name": "Authorization"
     }
   },
   "footerSocials": {
