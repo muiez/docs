@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/schema.json",
-  "name": "AgentMind",
+  "name": "agentmind",
   "logo": {
     "dark": "/logo/dark.svg",
     "light": "/logo/light.svg"
@@ -115,14 +115,14 @@
     "raiseIssue": true
   },
   "search": {
-    "prompt": "Search AgentMind docs..."
+    "prompt": "Search agentmind docs..."
   },
   "metadata": {
-    "og:title": "AgentMind Documentation",
+    "og:title": "agentmind Documentation",
     "og:description": "Powerful memory management for AI agents",
     "og:image": "/images/og-image.png",
     "twitter:card": "summary_large_image",
-    "twitter:title": "AgentMind - AI Agent Memory Management",
+    "twitter:title": "agentmind - AI Agent Memory Management",
     "twitter:description": "Smart memory management for AI agents"
   }
 }
