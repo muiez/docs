@@ -16,7 +16,7 @@ from agentmind import Memory
 
 # Initialize
 client = Anthropic()
-memory = Memory(api_key="am_live_YOUR_API_KEY")
+memory = Memory(api_key="YOUR_API_KEY")
 
 # Define memory tools for Claude
 tools = [
@@ -130,7 +130,7 @@ class ClaudeWithMemory:
 # Usage
 assistant = ClaudeWithMemory(
     api_key="your_anthropic_key",
-    memory_key="am_live_YOUR_API_KEY"
+    memory_key="YOUR_API_KEY"
 )
 
 # First conversation

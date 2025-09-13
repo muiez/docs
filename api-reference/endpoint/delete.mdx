@@ -43,7 +43,7 @@ Delete a specific memory entry from your agent's memory bank. This operation is 
 ```python Python
 from agentmind import Memory
 
-memory = Memory(api_key="am_live_YOUR_API_KEY")
+memory = Memory(api_key="YOUR_API_KEY")
 
 # Delete a specific memory
 memory.delete("mem_abc123")
@@ -51,14 +51,14 @@ memory.delete("mem_abc123")
 
 ```bash cURL
 curl -X DELETE https://api.agent-mind.com/v1/memories/mem_abc123 \
-  -H "Authorization: Bearer am_live_YOUR_API_KEY"
+  -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
 ```javascript JavaScript
 const response = await fetch('https://api.agent-mind.com/v1/memories/mem_abc123', {
   method: 'DELETE',
   headers: {
-    'Authorization': 'Bearer am_live_YOUR_API_KEY'
+    'Authorization': 'Bearer YOUR_API_KEY'
   }
 });
 
@@ -104,7 +104,7 @@ memory.delete_before(cutoff_date)
 ```bash
 # Batch delete
 curl -X POST https://api.agent-mind.com/v1/memories/delete-batch \
-  -H "Authorization: Bearer am_live_YOUR_API_KEY" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "ids": ["id1", "id2", "id3"]
@@ -112,7 +112,7 @@ curl -X POST https://api.agent-mind.com/v1/memories/delete-batch \
 
 # Delete by filter
 curl -X POST https://api.agent-mind.com/v1/memories/delete-by-filter \
-  -H "Authorization: Bearer am_live_YOUR_API_KEY" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "metadata_filter": {

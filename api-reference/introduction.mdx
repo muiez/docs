@@ -14,7 +14,7 @@ description: 'Simple API for agent memory'
 from agentmind import Memory
 
 # That's it - you're ready
-memory = Memory(api_key="am_live_YOUR_API_KEY")
+memory = Memory(api_key="YOUR_API_KEY")
 
 # Store anything
 memory.remember("User loves Python")
@@ -31,7 +31,7 @@ results = memory.recall("What does the user love?")
 https://api.agent-mind.com/v1
 
 # Auth Header
-Authorization: Bearer am_live_YOUR_API_KEY
+Authorization: Bearer YOUR_API_KEY
 ```
 
 ## Core Operations
@@ -87,12 +87,12 @@ results = memory.recall("What language does the user know?")
 ```bash
 # Store
 curl -X POST https://api.agent-mind.com/v1/memories \
-  -H "Authorization: Bearer am_live_YOUR_API_KEY" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{"content": "User is a Python developer"}'
 
 # Search  
 curl -X POST https://api.agent-mind.com/v1/memories/search \
-  -H "Authorization: Bearer am_live_YOUR_API_KEY" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{"query": "What language does the user know?"}'
 ```
 
