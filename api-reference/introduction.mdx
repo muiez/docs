@@ -1,52 +1,40 @@
 ---
 title: 'API Reference'
-description: 'Complete API documentation for AgentMind'
+description: 'Simple API for agent memory'
 ---
 
-## Overview
+## Two Ways to Use AgentMind
 
-AgentMind provides a fully-featured REST API for managing agent memory, perfect for any programming language or platform. You can also use our Python SDK for convenience, but the REST API gives you complete control and flexibility.
+**Python SDK** (Recommended) - 3 lines to get started  
+**REST API** - Use from any language
 
-## Base URL
-
-```
-https://api.agent-mind.com/v1
-```
-
-## Authentication
-
-All API requests require authentication using your API key. You can obtain an API key from your [dashboard](https://agent-mind.com/dashboard).
-
-### Header Authentication
-
-Include your API key in the `Authorization` header:
-
-```bash
-Authorization: Bearer <API_KEY>
-```
-
-Where `<API_KEY>` is your API key (e.g., `am_live_YOUR_API_KEY`)
-
-### Python SDK Authentication
+## Python SDK (Fastest)
 
 ```python
 from agentmind import Memory
 
-memory = Memory(api_key="<API_KEY>")
+# That's it - you're ready
+memory = Memory(api_key="am_live_YOUR_API_KEY")
+
+# Store anything
+memory.remember("User loves Python")
+memory.remember({"config": "production", "debug": False})
+
+# Search naturally
+results = memory.recall("What does the user love?")
 ```
 
-## Core Concepts
+## REST API
 
-### Memory Entry
+```bash
+# Base URL
+https://api.agent-mind.com/v1
 
-A memory entry consists of:
-- **content**: The actual data to remember (string, dict, list, or any JSON-serializable object)
-- **id**: Unique identifier (auto-generated or custom)
-- **metadata**: Optional metadata for filtering and organization
-- **timestamp**: When the memory was created
-- **embedding**: Vector representation for semantic search (auto-generated)
+# Auth Header
+Authorization: Bearer am_live_YOUR_API_KEY
+```
 
-### Memory Operations
+## Core Operations
 
 <CardGroup cols={2}>
   <Card
@@ -79,108 +67,43 @@ A memory entry consists of:
   </Card>
 </CardGroup>
 
-## Rate Limits
-
-- **Free Tier**: 1,000 requests per hour
-- **Pro Tier**: 10,000 requests per hour
-- **Enterprise**: Custom limits
-
-Rate limit information is included in response headers:
-- `X-RateLimit-Limit`: Maximum requests per hour
-- `X-RateLimit-Remaining`: Requests remaining
-- `X-RateLimit-Reset`: Time when limit resets
-
-## Error Handling
-
-AgentMind uses standard HTTP status codes:
-
-| Status Code | Description |
-|-------------|-------------|
-| 200 | Success |
-| 400 | Bad Request - Invalid parameters |
-| 401 | Unauthorized - Invalid API key |
-| 404 | Not Found - Memory ID doesn't exist |
-| 429 | Too Many Requests - Rate limit exceeded |
-| 500 | Internal Server Error |
-
-### Error Response Format
-
-```json
-{
-  "error": {
-    "code": "invalid_request",
-    "message": "The memory ID format is invalid",
-    "details": {
-      "field": "id",
-      "reason": "Must be alphanumeric with underscores only"
-    }
-  }
-}
-```
-
-## SDK Installation
+## Quick Example: Store & Search
 
 ### Python
 
-```bash
-pip install agentmind
-```
-
-### JavaScript (Coming Soon)
-
-```bash
-npm install @agentmind/sdk
-```
-
-## Quick Examples
-
-### REST API (Any Language)
-
-```bash
-# Store memory with metadata
-curl -X POST https://api.agent-mind.com/v1/memories \
-  -H "Authorization: Bearer <API_KEY>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "content": "User prefers dark mode with high contrast",
-    "metadata": {
-      "user_id": "user_123",
-      "category": "ui_preferences"
-    }
-  }'
-
-# Retrieve specific memory
-curl https://api.agent-mind.com/v1/memories/mem_abc123 \
-  -H "Authorization: Bearer <API_KEY>"
-
-# Search memories with natural language
-curl -X POST https://api.agent-mind.com/v1/memories/search \
-  -H "Authorization: Bearer <API_KEY>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "what are the user interface preferences?",
-    "metadata_filter": {"user_id": "user_123"},
-    "limit": 5
-  }'
-```
-
-### Python SDK
-
 ```python
-from agentmind import Memory
+# Store
+memory_id = memory.remember("User is a Python developer")
 
-# Initialize
-memory = Memory(api_key="<API_KEY>")
+# Get by ID
+data = memory.get(memory_id)
 
-# Store with metadata
-memory.remember(
-    "User prefers dark mode with high contrast",
-    metadata={"user_id": "user_123", "category": "ui_preferences"}
-)
-
-# Search with filters
-results = memory.recall(
-    "user interface preferences",
-    metadata_filter={"user_id": "user_123"}
-)
+# Search
+results = memory.recall("What language does the user know?")
 ```
+
+### REST API
+
+```bash
+# Store
+curl -X POST https://api.agent-mind.com/v1/memories \
+  -H "Authorization: Bearer am_live_YOUR_API_KEY" \
+  -d '{"content": "User is a Python developer"}'
+
+# Search  
+curl -X POST https://api.agent-mind.com/v1/memories/search \
+  -H "Authorization: Bearer am_live_YOUR_API_KEY" \
+  -d '{"query": "What language does the user know?"}'
+```
+
+## Rate Limits
+
+- **Free**: 1,000/hour
+- **Pro**: 10,000/hour  
+- **Enterprise**: Unlimited
+
+## Need Help?
+
+- [Discord Community](https://discord.gg/agentmind)
+- [GitHub Issues](https://github.com/muiez/agentmind)
+- Email: support@agent-mind.com

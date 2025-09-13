@@ -1,0 +1,169 @@
+---
+title: 'Anthropic Claude'
+description: 'Use AgentMind with Claude via tool use'
+icon: 'robot'
+---
+
+## Overview
+
+Give Claude persistent memory using Anthropic's tool use feature.
+
+## Quick Start
+
+```python
+from anthropic import Anthropic
+from agentmind import Memory
+
+# Initialize
+client = Anthropic()
+memory = Memory(api_key="am_live_YOUR_API_KEY")
+
+# Define memory tools for Claude
+tools = [
+    {
+        "name": "remember",
+        "description": "Store important information from the conversation",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "content": {"type": "string", "description": "What to remember"}
+            },
+            "required": ["content"]
+        }
+    },
+    {
+        "name": "recall",
+        "description": "Search memories to find relevant information",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Natural language search query"}
+            },
+            "required": ["query"]
+        }
+    }
+]
+
+# Chat with Claude + Memory
+message = client.messages.create(
+    model="claude-3-opus-20240229",
+    max_tokens=1000,
+    tools=tools,
+    messages=[
+        {"role": "user", "content": "I prefer Python and I'm building a Django app"}
+    ]
+)
+
+# Claude uses tools to remember
+if message.stop_reason == "tool_use":
+    for tool_use in message.content:
+        if tool_use.type == "tool_use":
+            if tool_use.name == "remember":
+                memory.remember(tool_use.input["content"])
+            elif tool_use.name == "recall":
+                results = memory.recall(tool_use.input["query"])
+```
+
+## Complete Example
+
+```python
+from anthropic import Anthropic
+from agentmind import Memory
+
+class ClaudeWithMemory:
+    def __init__(self, api_key, memory_key):
+        self.client = Anthropic(api_key=api_key)
+        self.memory = Memory(api_key=memory_key)
+        self.tools = [
+            {
+                "name": "remember",
+                "description": "Store important information",
+                "input_schema": {
+                    "type": "object",
+                    "properties": {
+                        "content": {"type": "string"}
+                    },
+                    "required": ["content"]
+                }
+            },
+            {
+                "name": "recall",
+                "description": "Search stored memories",
+                "input_schema": {
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string"}
+                    },
+                    "required": ["query"]
+                }
+            }
+        ]
+    
+    def chat(self, user_message, user_id=None):
+        # Let Claude decide what to remember/recall
+        response = self.client.messages.create(
+            model="claude-3-opus-20240229",
+            max_tokens=1000,
+            tools=self.tools,
+            messages=[{"role": "user", "content": user_message}]
+        )
+        
+        # Process tool calls
+        if response.stop_reason == "tool_use":
+            for content in response.content:
+                if content.type == "tool_use":
+                    if content.name == "remember":
+                        self.memory.remember(
+                            content.input["content"],
+                            user_id=user_id
+                        )
+                    elif content.name == "recall":
+                        memories = self.memory.recall(
+                            content.input["query"],
+                            user_id=user_id
+                        )
+                        # Continue conversation with retrieved memories
+                        return self.chat_with_context(user_message, memories)
+        
+        return response.content[0].text
+
+# Usage
+assistant = ClaudeWithMemory(
+    api_key="your_anthropic_key",
+    memory_key="am_live_YOUR_API_KEY"
+)
+
+# First conversation
+response = assistant.chat("I'm learning Rust and love systems programming")
+# Claude remembers this preference
+
+# Later conversation
+response = assistant.chat("What programming language should I use for my OS project?")
+# Claude recalls your Rust interest and systems programming preference
+```
+
+## Best Practices
+
+1. **Let Claude decide** - Don't force memory operations, let Claude choose when to remember/recall
+2. **User context** - Always pass `user_id` for user-specific memories
+3. **Natural queries** - Claude can use natural language for recall queries
+4. **Streaming** - For streaming responses, collect tool uses first then execute
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="OpenAI Integration"
+    icon="openai"
+    href="/essentials/openai-function-calling"
+  >
+    Similar setup for GPT models
+  </Card>
+  <Card
+    title="LangChain"
+    icon="link"
+    href="/essentials/langchain-integration"
+  >
+    Use with LangChain agents
+  </Card>
+</CardGroup>

@@ -1,370 +1,193 @@
 ---
 title: 'Quick Examples'
-description: 'Common use cases and code snippets for AgentMind'
-icon: 'code'
+description: 'Real AI agents using memory in conversations'
+icon: 'play'
 ---
 
-## Customer Support Bot
-
-A bot that remembers customer issues and preferences:
+## 1. Customer Support Agent
 
 ```python
 from agentmind import Memory
-from datetime import datetime
 
 memory = Memory(api_key="am_live_YOUR_API_KEY")
 
-class CustomerSupportBot:
-    def __init__(self, customer_id: str):
-        self.customer_id = customer_id
-        self.memory = memory
+# Real conversation with memory
+def support_agent(user_id, message):
+    # Agent searches its memory naturally
+    context = memory.recall(message, user_id=user_id)
     
-    def handle_issue(self, issue_description: str):
-        # Store the issue
-        issue_id = self.memory.remember(
-            content={
-                "issue": issue_description,
-                "status": "open",
-                "created_at": datetime.now().isoformat()
-            },
-            user_id=self.customer_id,
-            metadata={
-                "category": "support_ticket",
-                "priority": self.determine_priority(issue_description)
-            }
-        )
-        
-        # Check for similar past issues
-        similar_issues = self.memory.recall(
-            query=issue_description,
-            user_id=self.customer_id,
-            filters={"category": "support_ticket"},
-            limit=3
-        )
-        
-        if similar_issues:
-            return f"I see you've had similar issues before. Let me help you with this."
-        else:
-            return f"I've logged your issue (ID: {issue_id}). Let me help you resolve this."
+    # Agent remembers this conversation
+    memory.remember(message, user_id=user_id)
     
-    def determine_priority(self, issue: str):
-        keywords = {
-            "urgent": "high",
-            "critical": "high",
-            "broken": "high",
-            "minor": "low",
-            "question": "low"
-        }
-        
-        issue_lower = issue.lower()
-        for keyword, priority in keywords.items():
-            if keyword in issue_lower:
-                return priority
-        return "medium"
+    # Generate response with full context
+    return generate_response(message, context)
 
-# Usage
-bot = CustomerSupportBot("customer_789")
-response = bot.handle_issue("My dashboard is broken and showing errors")
-print(response)
+# Actual conversation
+user: "My app keeps crashing"
+agent: memory.remember("User experiencing app crashes", user_id="user_123")
+agent: "I'll help you with the crashes. What device are you using?"
+
+user: "iPhone 13"
+agent: memory.remember("Using iPhone 13", user_id="user_123")
+agent: "Let me check for iPhone 13 specific issues..."
+
+# Days later - agent remembers everything
+user: "Still having that problem"
+agent: memory.recall("previous issues", user_id="user_123")
+agent: "I see you were having crashes on your iPhone 13. Let's try a different solution..."
 ```
 
-## Personal AI Assistant
-
-An assistant that learns user preferences over time:
+## 2. AI Coding Assistant
 
 ```python
-class PersonalAssistant:
-    def __init__(self, user_id: str):
-        self.user_id = user_id
-        self.memory = Memory(api_key="am_live_YOUR_API_KEY")
-    
-    def learn_preference(self, preference: str, category: str = "general"):
-        """Learn and remember user preferences"""
-        self.memory.remember(
-            content=preference,
-            user_id=self.user_id,
-            metadata={
-                "category": "preference",
-                "preference_type": category,
-                "learned_at": datetime.now().isoformat()
-            }
-        )
-        return f"I'll remember that you {preference}"
-    
-    def suggest_based_on_preferences(self, context: str):
-        """Make suggestions based on learned preferences"""
-        preferences = self.memory.recall(
-            query=context,
-            user_id=self.user_id,
-            filters={"category": "preference"},
-            limit=5
-        )
-        
-        if preferences:
-            suggestions = self.generate_suggestions(preferences, context)
-            return suggestions
-        else:
-            return "I'm still learning your preferences. Tell me more about what you like!"
-    
-    def get_daily_brief(self):
-        """Generate personalized daily brief"""
-        # Get user's interests
-        interests = self.memory.recall(
-            query="interests hobbies topics",
-            user_id=self.user_id,
-            filters={"category": "preference"}
-        )
-        
-        # Get pending tasks
-        tasks = self.memory.recall(
-            query="tasks todo reminders",
-            user_id=self.user_id,
-            filters={
-                "category": "task",
-                "status": "pending"
-            }
-        )
-        
-        return {
-            "interests": interests,
-            "tasks": tasks,
-            "greeting": self.get_personalized_greeting()
-        }
+# Agent learns your project naturally through conversation
+user: "I'm building a React app with TypeScript"
+agent: memory.remember("Project: React with TypeScript")
 
-# Usage
-assistant = PersonalAssistant("user_456")
-assistant.learn_preference("prefer morning meetings before 10am", "schedule")
-assistant.learn_preference("like Italian and Japanese cuisine", "food")
+user: "We use Tailwind for styling"
+agent: memory.remember("Styling: Tailwind CSS")
 
-suggestions = assistant.suggest_based_on_preferences("lunch recommendations")
+user: "Create a button component"
+agent: memory.recall("project tech stack")
+# Agent knows: React, TypeScript, Tailwind
+agent: "Here's a TypeScript React component with Tailwind styling..."
+
+# Generated code matches your stack perfectly
 ```
 
-## Code Review Assistant
-
-An AI that remembers coding patterns and review feedback:
+## 3. Personal Assistant
 
 ```python
-class CodeReviewAssistant:
-    def __init__(self, repo_name: str):
-        self.repo_name = repo_name
-        self.memory = Memory(api_key="am_live_YOUR_API_KEY")
-    
-    def review_code(self, code: str, file_path: str):
-        # Check for similar code patterns reviewed before
-        similar_patterns = self.memory.recall(
-            query=f"code review {file_path} patterns",
-            filters={
-                "repo": self.repo_name,
-                "category": "code_review"
-            }
-        )
-        
-        issues = []
-        suggestions = []
-        
-        # Apply learned patterns
-        for pattern in similar_patterns:
-            if self.matches_pattern(code, pattern):
-                suggestions.append(pattern['suggestion'])
-        
-        # Store this review for future learning
-        self.memory.remember(
-            content={
-                "file": file_path,
-                "code_snippet": code[:500],  # Store first 500 chars
-                "issues": issues,
-                "suggestions": suggestions,
-                "timestamp": datetime.now().isoformat()
-            },
-            metadata={
-                "repo": self.repo_name,
-                "category": "code_review",
-                "language": self.detect_language(file_path)
-            }
-        )
-        
-        return {
-            "issues": issues,
-            "suggestions": suggestions,
-            "similar_reviews": len(similar_patterns)
-        }
-    
-    def learn_pattern(self, pattern: str, issue: str, suggestion: str):
-        """Learn from code review feedback"""
-        self.memory.remember(
-            content={
-                "pattern": pattern,
-                "issue": issue,
-                "suggestion": suggestion
-            },
-            metadata={
-                "repo": self.repo_name,
-                "category": "code_pattern",
-                "type": "learned"
-            }
-        )
+# Natural conversation with persistent memory
+user: "I'm allergic to shellfish"
+agent: memory.remember("Allergic to shellfish")
 
-# Usage
-reviewer = CodeReviewAssistant("my-project")
-reviewer.learn_pattern(
-    pattern="console.log in production",
-    issue="Debug logs left in production code",
-    suggestion="Remove console.log or use proper logging library"
-)
+user: "I have a meeting every Monday at 9am"
+agent: memory.remember("Weekly meeting: Monday 9am")
 
-review = reviewer.review_code(
-    code="function getData() { console.log('fetching'); return fetch('/api/data'); }",
-    file_path="src/api.js"
-)
+user: "My wife's birthday is March 15"
+agent: memory.remember("Wife's birthday: March 15")
+
+# Agent uses memory contextually
+user: "Find me a restaurant for dinner"
+agent: memory.recall("dietary restrictions allergies")
+agent: "I'll find restaurants without shellfish on the menu"
+
+user: "When's my next meeting?"
+agent: memory.recall("meetings schedule")
+agent: "Your weekly meeting is Monday at 9am"
+
+user: "I need gift ideas"
+agent: memory.recall("family birthdays important dates")
+agent: "Your wife's birthday is coming up on March 15. Should I suggest some gift ideas?"
 ```
 
-## Trading Strategy Memory
-
-Remember and analyze trading decisions:
+## 4. Sales Assistant
 
 ```python
-class TradingAssistant:
-    def __init__(self, trader_id: str):
-        self.trader_id = trader_id
-        self.memory = Memory(api_key="am_live_YOUR_API_KEY")
+# Track entire customer journey naturally
+def sales_agent(lead_id, message):
+    # Remember everything
+    memory.remember(
+        {"message": message, "timestamp": datetime.now()},
+        user_id=lead_id
+    )
     
-    def record_trade(self, trade: dict):
-        """Record a trade decision and outcome"""
-        self.memory.remember(
-            content=trade,
-            user_id=self.trader_id,
-            metadata={
-                "category": "trade",
-                "asset": trade['symbol'],
-                "outcome": trade.get('outcome', 'pending'),
-                "strategy": trade.get('strategy', 'unknown')
-            }
-        )
-    
-    def analyze_performance(self, strategy: str = None):
-        """Analyze past trading performance"""
-        filters = {"category": "trade"}
-        if strategy:
-            filters["strategy"] = strategy
-        
-        past_trades = self.memory.recall(
-            query=f"trading performance {strategy or 'all strategies'}",
-            user_id=self.trader_id,
-            filters=filters,
-            limit=100
-        )
-        
-        # Calculate metrics
-        total_trades = len(past_trades)
-        winning_trades = sum(1 for t in past_trades if t.get('outcome') == 'profit')
-        
-        return {
-            "total_trades": total_trades,
-            "win_rate": winning_trades / total_trades if total_trades > 0 else 0,
-            "strategies_used": list(set(t.get('strategy') for t in past_trades))
-        }
-    
-    def get_similar_setups(self, current_setup: dict):
-        """Find similar historical trading setups"""
-        similar = self.memory.recall(
-            query=f"{current_setup['symbol']} {current_setup['pattern']} setup",
-            user_id=self.trader_id,
-            filters={
-                "category": "trade",
-                "asset": current_setup['symbol']
-            },
-            limit=10
-        )
-        
-        return similar
+    # Search memory with natural language
+    context = memory.recall(message, user_id=lead_id)
+    return respond_with_context(message, context)
 
-# Usage
-trader = TradingAssistant("trader_123")
+# Natural sales conversation
+lead: "What's your pricing?"
+agent: "Our starter plan is $99/month. What size is your team?"
 
-trader.record_trade({
-    "symbol": "BTC/USD",
-    "action": "buy",
-    "price": 45000,
-    "strategy": "momentum",
-    "pattern": "bullish_flag",
-    "outcome": "profit",
-    "return_pct": 5.2
-})
+lead: "We have 50 employees"
+agent: memory.remember("Team size: 50 employees")
+agent: "For 50 users, I'd recommend our Business plan at $999/month"
 
-performance = trader.analyze_performance("momentum")
-print(f"Momentum strategy win rate: {performance['win_rate']:.2%}")
+# Follow-up conversation
+lead: "Can we get a discount?"
+agent: memory.recall("pricing discussions team size")
+agent: "Since you have 50 employees, I can offer a 20% volume discount"
 ```
 
-## Session Management
-
-Track user sessions and context:
+## 5. Learning Tutor
 
 ```python
-class SessionManager:
-    def __init__(self):
-        self.memory = Memory(api_key="am_live_YOUR_API_KEY")
-    
-    def start_session(self, user_id: str, session_type: str = "chat"):
-        """Start a new user session"""
-        session_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-        
-        self.memory.remember(
-            content={
-                "session_start": datetime.now().isoformat(),
-                "type": session_type,
-                "status": "active"
-            },
-            user_id=user_id,
-            session_id=session_id,
-            metadata={"category": "session_management"}
-        )
-        
-        return session_id
-    
-    def add_to_session(self, session_id: str, content: dict):
-        """Add content to existing session"""
-        self.memory.remember(
-            content=content,
-            session_id=session_id,
-            metadata={
-                "category": "session_content",
-                "timestamp": datetime.now().isoformat()
-            }
-        )
-    
-    def get_session_context(self, session_id: str):
-        """Retrieve all content from a session"""
-        return self.memory.recall(
-            query=f"session {session_id}",
-            filters={"session_id": session_id},
-            limit=50
-        )
-    
-    def end_session(self, session_id: str):
-        """Mark session as ended"""
-        self.memory.remember(
-            content={
-                "session_end": datetime.now().isoformat(),
-                "status": "completed"
-            },
-            session_id=session_id,
-            metadata={"category": "session_management"}
-        )
+# Adaptive learning through conversation
+student: "I'm learning Python"
+tutor: memory.remember("Learning Python", user_id="student_1")
 
-# Usage
-sessions = SessionManager()
-session_id = sessions.start_session("user_789", "support")
+student: "Loops are confusing"
+tutor: memory.remember("Struggles with loops", user_id="student_1")
+tutor: "Let's start with simple for loops..."
 
-sessions.add_to_session(session_id, {
-    "message": "How do I reset my password?",
-    "type": "user_query"
-})
-
-sessions.add_to_session(session_id, {
-    "message": "Click on 'Forgot Password' on the login page",
-    "type": "agent_response"
-})
-
-context = sessions.get_session_context(session_id)
-sessions.end_session(session_id)
+# Next session - tutor adapts
+student: "Ready for the next lesson"
+tutor: memory.recall("learning progress struggles", user_id="student_1")
+tutor: "Since you found loops challenging, let's practice more before moving to functions"
 ```
+
+## Key Patterns
+
+### Natural Language Search
+```python
+# No complex queries needed
+memory.recall("what did the user say about pricing?")
+memory.recall("previous error messages")
+memory.recall("user preferences")
+memory.recall("all conversations from last week")
+```
+
+### Contextual Memory
+```python
+# Memory understands context
+memory.remember("User wants refund")
+memory.recall("refund requests")  # Finds all refund-related memories
+
+memory.remember("Bug in checkout flow")
+memory.recall("checkout issues")  # Finds all checkout problems
+```
+
+### User Segmentation
+```python
+# Each user has their own memory space
+memory.remember("Prefers email", user_id="alice")
+memory.remember("Prefers phone", user_id="bob")
+
+memory.recall("contact preference", user_id="alice")  # Returns: "email"
+memory.recall("contact preference", user_id="bob")    # Returns: "phone"
+```
+
+## Integration Examples
+
+<CardGroup cols={2}>
+  <Card
+    title="OpenAI Functions"
+    icon="openai"
+    href="/essentials/openai-function-calling"
+  >
+    Full OpenAI integration guide
+  </Card>
+  <Card
+    title="LangChain"
+    icon="link"
+    href="/essentials/langchain-integration"
+  >
+    Drop-in LangChain memory
+  </Card>
+  <Card
+    title="Custom Agents"
+    icon="robot"
+    href="/essentials/agent-integration"
+  >
+    Build your own memory agent
+  </Card>
+  <Card
+    title="Best Practices"
+    icon="lightbulb"
+    href="/essentials/best-practices"
+  >
+    Memory design patterns
+  </Card>
+</CardGroup>

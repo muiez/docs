@@ -1,6 +1,6 @@
 ---
 title: Introduction
-description: "Powerful memory management for AI agents"
+description: "Give your AI agents memory they control"
 ---
 
 <img
@@ -14,105 +14,110 @@ description: "Powerful memory management for AI agents"
   alt="Hero Dark"
 />
 
-# agentmind
+# AgentMind
 
-AgentMind is a powerful memory management system for AI agents. It gives your agents the ability to remember important information, learn from interactions, and maintain context across conversations.
+**Give your AI agents perfect memory.** AgentMind is a simple tool that lets your agents remember important information, learn from interactions, and maintain context across conversations.
 
-## Why AgentMind?
+## The Problem
 
-Your AI agents need effective memory management. AgentMind provides tools that allow your agents to store and recall information intelligently, helping them make better decisions based on past interactions and learned context.
+AI agents forget everything between conversations. They can't learn from experience, track user preferences, or maintain context. You're stuck managing memory manually.
 
-<CardGroup cols={2}>
-  <Card
-    title="Smart Memory Management"
-    icon="brain"
-    href="/quickstart"
-  >
-    Enable intelligent storage and retrieval of important information
-  </Card>
-  <Card
-    title="Natural Language Search"
-    icon="magnifying-glass"
-    href="/essentials/memory-search"
-  >
-    Search memories using natural language queries for intuitive retrieval
-  </Card>
-  <Card
-    title="Simple Integration"
-    icon="plug"
-    href="/api-reference/introduction"
-  >
-    Easy-to-use Python SDK and REST API for seamless integration
-  </Card>
-  <Card
-    title="Scalable Storage"
-    icon="database"
-    href="/essentials/settings"
-  >
-    Cloud-hosted solution that scales with your application needs
-  </Card>
-</CardGroup>
+## The Solution
 
-## Perfect For
+Add memory to your agent in 3 lines:
+
+```python
+# Add memory to any agent
+memory = Memory(api_key="am_live_YOUR_API_KEY")
+agent = YourAgent(
+    tools=[memory.remember, memory.recall]
+)
+
+# Agent remembers important context
+user: "I prefer morning meetings and hate video calls"
+agent: memory.remember("User prefers morning meetings, dislikes video calls")
+
+# Later, agent uses that knowledge
+user: "Schedule our sync"
+agent: memory.recall("meeting preferences")
+agent: "I'll schedule a morning audio call for you"
+```
+
+## Real Impact
 
 <CardGroup cols={2}>
   <Card
-    title="AI Coding Assistants"
-    icon="code"
+    title="Faster Support"
+    icon="clock"
   >
-    Remember project structure, coding patterns, and team conventions across sessions
+    Agents remember every customer interaction, past issues, and resolutions
   </Card>
   <Card
-    title="Financial Analysis Bots"
+    title="Better Development"
+    icon="rocket"
+  >
+    Code assistants remember your entire codebase context and patterns
+  </Card>
+  <Card
+    title="No Repetition"
+    icon="arrows-rotate"
+  >
+    Users never repeat themselves - agents remember everything relevant
+  </Card>
+  <Card
+    title="Self-Improving Agents"
     icon="chart-line"
   >
-    Track market conditions, trading strategies, and portfolio performance over time
-  </Card>
-  <Card
-    title="Research Assistants"
-    icon="microscope"
-  >
-    Maintain context across research papers, experiments, and evolving hypotheses
-  </Card>
-  <Card
-    title="Sales & CRM Agents"
-    icon="handshake"
-  >
-    Remember client interactions, deal progress, and relationship history
+    Agents learn from every interaction and get smarter over time
   </Card>
 </CardGroup>
 
-## Quick Example
+## 5-Minute Integration
 
 ```python
 from agentmind import Memory
 
-# Initialize memory for your agent
+# 1. Initialize memory
 memory = Memory(api_key="am_live_YOUR_API_KEY")
 
-# Store important information
-memory.remember("Customer prefers email over phone calls")
+# 2. Give your agent memory tools
+def remember_tool(content: str):
+    """Agent decides what to store"""
+    return memory.remember(content)
 
-# Later, retrieve relevant information
-context = memory.recall("customer communication preferences")
-# Returns: "Customer prefers email over phone calls"
+def recall_tool(query: str):
+    """Agent searches its memory"""
+    return memory.recall(query)
+
+# 3. Let your agent handle the rest
+agent = YourAgent(tools=[remember_tool, recall_tool])
 ```
 
-## Get Started
+## Who's Already Using It
+
+**Customer Support** → *"Our agents resolve tickets faster by remembering every customer's history"*
+
+**Dev Tools** → *"Code assistants that remember your entire project context and coding style"*
+
+**Sales Teams** → *"Every interaction remembered - better qualified leads and follow-ups"*
+
+**Healthcare** → *"Complete patient history at agents' fingertips for better care"*
+
+## Start Now
 
 <CardGroup cols={2}>
   <Card
-    title="Quick Start Guide"
-    icon="rocket"
+    title="5-Minute Quickstart"
+    icon="bolt"
     href="/quickstart"
   >
-    Get up and running with AgentMind in 5 minutes
+    Integration so simple, you'll be done before your coffee cools
   </Card>
   <Card
-    title="API Reference"
-    icon="code"
-    href="/api-reference/introduction"
+    title="See It In Action"
+    icon="play"
+    href="/essentials/quick-examples"
   >
-    Explore the complete API documentation
+    Real agent examples you can run right now
   </Card>
 </CardGroup>

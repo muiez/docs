@@ -1,230 +1,138 @@
 ---
 title: 'Quick Start'
-description: 'Get up and running with AgentMind in 5 minutes'
+description: '5 minutes to agents with perfect memory'
 ---
 
-## Installation
-
-Install AgentMind using pip:
+## Install
 
 ```bash
 pip install agentmind
 ```
 
-## Get Your API Key
+## Get API Key
 
-Sign up for a free API key at [agent-mind.com](https://agent-mind.com) to get started with the cloud-hosted service.
+[Get your free key at agent-mind.com →](https://agent-mind.com)
 
-## Basic Usage
+## Add Memory to Your Agent (3 Steps)
 
-### Initialize Memory
+### Step 1: Initialize
 
 ```python
 from agentmind import Memory
 
-# Initialize with your API key
 memory = Memory(api_key="am_live_YOUR_API_KEY")
 ```
 
-### Store Memories
-
-AgentMind accepts any data type - strings, dicts, lists. Use metadata for organization:
+### Step 2: Create Memory Tools
 
 ```python
-# Store user-specific preference
-memory.remember(
-    "Prefers email over phone calls, send weekly summaries",
-    user_id="user_123",
-    metadata={"category": "preferences"}
-)
+def remember_tool(content: str):
+    """Store important information"""
+    return memory.remember(content)
 
-# Store system configuration with metadata
-memory.remember(
-    {"rate_limit": 1000, "timeout": 30, "retry_count": 3},
-    metadata={"category": "api_config", "service": "openai"}
-)
-
-# Store customer profile with user_id
-memory.remember({
-    "name": "John Doe",
-    "tier": "enterprise", 
-    "features": ["sso", "analytics", "priority_support"],
-    "contract_value": 50000,
-    "renewal_date": "2024-12-01"
-}, user_id="user_123", metadata={"type": "profile"})
+def recall_tool(query: str):
+    """Search stored memories"""
+    return memory.recall(query)
 ```
 
-### Retrieve Memories
-
-#### Natural Language Search
+### Step 3: Add to Your Agent
 
 ```python
-# Search for user-specific memories
-results = memory.recall(
-    "How does user_123 want to be contacted?",
-    metadata_filter={"user_id": "user_123"}
-)
-# Returns: ["Prefers email over phone calls, send weekly summaries"]
-
-# Search for configuration
-api_config = memory.recall(
-    "OpenAI API configuration",
-    metadata_filter={"category": "api_config", "service": "openai"}
-)
-# Returns the rate limit and timeout settings
-
-# Search across all user issues
-recent_issues = memory.recall(
-    "unresolved customer problems",
-    metadata_filter={"status": "open", "type": "issue"},
-    limit=5
-)
-```
-
-## Agent Tool Integration
-
-The primary use case for AgentMind is giving your agents memory tools:
-
-```python
-# Define memory tools for your agent with user context
-def create_memory_tools(user_id: str):
-    memory = Memory(api_key="am_live_YOUR_API_KEY")
-    
-    def remember_tool(content: str, category: str = "general"):
-        """Store information with user context."""
-        return memory.remember(
-            content=content,
-            metadata={
-                "user_id": user_id,
-                "category": category,
-                "timestamp": datetime.now().isoformat()
-            }
-        )
-    
-    def recall_tool(query: str, category: str = None):
-        """Recall information for this user."""
-        filters = {"user_id": user_id}
-        if category:
-            filters["category"] = category
-            
-        memories = memory.recall(query, metadata_filter=filters, limit=5)
-        return memories if memories else []
-    
-    return remember_tool, recall_tool
-
-# Create tools for a specific user
-remember, recall = create_memory_tools("user_123")
-
-# Add to your agent
+# Add tools to your agent
 agent = YourAgent(
-    tools=[remember, recall],
-    system_prompt="You have memory tools for this user. Remember important details."
+    tools=[remember_tool, recall_tool]
 )
+
+# Agent remembers important context
+user: "I'm allergic to peanuts and love Italian food"
+agent: memory.remember("User allergic to peanuts, loves Italian food")
+
+user: "Book me a restaurant"
+agent: memory.recall("dietary restrictions and preferences")
+agent: "I found an Italian restaurant with a peanut-free menu"
 ```
 
-## Complete Example
-
-Here's a practical AI assistant personalization example:
+## Real Chat Example
 
 ```python
 from agentmind import Memory
-from datetime import datetime
 
-# Initialize memory
 memory = Memory(api_key="am_live_YOUR_API_KEY")
 
-# AI Assistant learning user's work patterns
-user_id = "user_dev_456"
-session_id = "session_" + datetime.now().strftime("%Y%m%d_%H%M%S")
+# Natural conversation with memory
+user: "I'm building a SaaS app"
+agent: memory.remember("Building a SaaS application")
+agent: "Great! What's your tech stack?"
 
-# Store coding preferences
-memory.remember(
-    "Prefers TypeScript with strict mode, uses React hooks over class components",
-    metadata={
-        "user_id": user_id,
-        "category": "coding_preferences",
-        "language": "typescript",
-        "framework": "react"
-    }
-)
+user: "Next.js and Supabase"
+agent: memory.remember("Tech stack: Next.js, Supabase")
+agent: "Nice modern stack. What features are you building?"
 
-# Store work patterns
-memory.remember({
-    "peak_productivity": "9am-12pm",
-    "preferred_session_length": "2 hours",
-    "break_pattern": "pomodoro",
-    "focus_music": "lo-fi beats"
-}, metadata={
-    "user_id": user_id,
-    "category": "work_patterns",
-    "last_updated": datetime.now().isoformat()
-})
+user: "User auth and payments"
+agent: memory.remember("Working on: authentication, payments")
+agent: "For payments with Next.js, I recommend Stripe..."
 
-# Store frequently used tools and commands
-memory.remember({
-    "ide": "VSCode",
-    "terminal": "iTerm2",
-    "common_commands": ["npm run dev", "git status", "docker-compose up"],
-    "snippets": ["rafce", "useState", "useEffect"]
-}, metadata={
-    "user_id": user_id,
-    "category": "dev_environment"
-})
-
-# Later, AI assistant personalizes responses
-coding_style = memory.recall(
-    "TypeScript React preferences",
-    metadata_filter={"user_id": user_id, "category": "coding_preferences"}
-)
-# AI generates code examples matching user's style
-
-work_patterns = memory.recall(
-    "productivity patterns",
-    metadata_filter={"user_id": user_id, "category": "work_patterns"}
-)
-# AI suggests breaks and focus sessions based on patterns
-
-# Track learning progress
-memory.remember(
-    "Learned about Next.js App Router, interested in server components",
-    metadata={
-        "user_id": user_id,
-        "category": "learning_journey",
-        "topic": "nextjs",
-        "date": datetime.now().isoformat()
-    }
-)
+# Days later - agent remembers everything
+user: "How do I add subscriptions?"
+agent: memory.recall("tech stack payments")
+# Agent knows: Next.js, Supabase, working on payments
+agent: "Since you're using Next.js with Stripe, here's how to add subscriptions..."
 ```
 
-## Next Steps
+## Natural Language Memory
+
+```python
+# Ask questions in plain English
+memory.recall("What did the user say about pricing?")
+memory.recall("Any bugs reported yesterday?")
+memory.recall("What's their tech stack?")
+memory.recall("Show me all customer complaints")
+
+# Memory understands context
+memory.remember("User wants to cancel subscription")
+later = memory.recall("cancellation requests")  # Finds it!
+
+# Store complex data
+memory.remember({
+    "customer": "acme_corp",
+    "plan": "enterprise",
+    "mrr": 5000
+})
+
+# Search naturally
+result = memory.recall("enterprise customers")
+# Returns the Acme Corp data
+```
+
+## Framework Examples
 
 <CardGroup cols={2}>
   <Card
-    title="API Reference"
-    icon="code"
-    href="/api-reference/introduction"
+    title="OpenAI Functions"
+    icon="openai"
+    href="/essentials/openai-function-calling"
   >
-    Explore all available methods and parameters
+    Memory tools for GPT function calling
   </Card>
   <Card
-    title="Agent Examples"
+    title="LangChain"
+    icon="link"
+    href="/essentials/langchain-integration"
+  >
+    Drop-in LangChain memory replacement
+  </Card>
+  <Card
+    title="Custom Agents"
     icon="robot"
     href="/essentials/agent-integration"
   >
-    See how to integrate with popular agent frameworks
+    Build your own memory-powered agents
   </Card>
   <Card
-    title="Best Practices"
-    icon="lightbulb"
-    href="/essentials/best-practices"
+    title="More Examples"
+    icon="code"
+    href="/essentials/quick-examples"
   >
-    Learn memory management best practices
-  </Card>
-  <Card
-    title="Advanced Features"
-    icon="gear"
-    href="/essentials/settings"
-  >
-    Configure advanced features and settings
+    Production-ready code examples
   </Card>
 </CardGroup>

@@ -1,383 +1,186 @@
 ---
 title: 'Best Practices'
-description: 'Guidelines for effective memory management in AI agents'
+description: 'Simple rules for powerful agent memory'
 icon: 'lightbulb'
 ---
 
-## Memory Design Principles
+## Core Principle: Keep It Simple
 
-### 1. Agent Autonomy
-
-Let your agent decide what to remember:
+The #1 rule: **Let agents use memory naturally, without complex rules.**
 
 ```python
-# Good: Agent controls memory
-def agent_with_memory(user_input):
-    # Agent analyzes input
-    if "important" in analyze_importance(user_input):
-        memory.remember(user_input)
-    
-    # Agent decides what context to recall
-    context = memory.recall(extract_topic(user_input))
-    return generate_response(user_input, context)
+# ✅ RIGHT: Simple memory tools
+agent = YourAgent(
+    tools=[memory.remember, memory.recall]
+)
 
-# Avoid: Hardcoded memory rules
-def manual_memory(user_input):
-    # Don't do this - too rigid
-    if "password" in user_input:
-        memory.remember(user_input)  # Bad pattern
+# ❌ WRONG: Hardcoded logic
+if "important" in user_input:
+    memory.remember(user_input)  # Too rigid
 ```
 
-### 2. Structured Data Storage
+## The 3 Essential Patterns
 
-Store structured data when possible:
+### 1. Keep Tools Simple
 
 ```python
-# Good: Structured data
+# Clean, simple tools
+def remember(content):
+    return memory.remember(content)
+
+def recall(query):
+    return memory.recall(query)
+
+# Agent uses them naturally
+agent = Agent(tools=[remember, recall])
+```
+
+### 2. Store Objects, Not Strings
+
+```python
+# ✅ Store structured data
 memory.remember({
-    "type": "user_preference",
-    "category": "communication",
-    "preference": "email",
-    "frequency": "weekly",
-    "format": "html",
-    "verified_date": "2024-03-20"
+    "user": "john_doe",
+    "preference": "dark_mode",
+    "set_date": "2024-03-20"
 })
 
-# Less optimal: Unstructured string
-memory.remember("User wants weekly HTML emails")
+# ❌ Avoid plain strings
+memory.remember("John likes dark mode")  # Harder to search
 ```
 
-### 3. Meaningful IDs
-
-Use descriptive, consistent ID patterns:
+### 3. Use Clear IDs (When Needed)
 
 ```python
-# Good: Hierarchical, meaningful IDs
-memory.remember(data, id="user_123_pref_communication")
-memory.remember(data, id="session_abc_context_checkout")
-memory.remember(data, id="config_api_rate_limits")
+# Only set IDs for things you'll retrieve directly
+memory.remember(api_config, id="config_v1")
+config = memory.get("config_v1")  # Direct access
 
-# Avoid: Random or unclear IDs
-memory.remember(data, id="data1")
-memory.remember(data, id="temp123")
+# Let AgentMind handle IDs for searchable content
+memory.remember("User feedback about checkout")  # Auto-ID
 ```
 
-## Memory Organization
+## Common Patterns That Work
 
-### Categorization Strategy
+### User-Scoped Memory
 
 ```python
-class OrganizedMemory:
-    def __init__(self, api_key):
-        self.memory = Memory(api_key=api_key)
+# Each user gets their own memory space
+def create_user_memory(user_id):
+    def remember(content):
+        return memory.remember(content, user_id=user_id)
     
-    def store_categorized(self, content, category, subcategory=None):
-        metadata = {
-            "category": category,
-            "subcategory": subcategory,
-            "timestamp": datetime.now().isoformat()
-        }
-        
-        # Generate consistent ID
-        id_parts = [category]
-        if subcategory:
-            id_parts.append(subcategory)
-        id_parts.append(str(uuid.uuid4())[:8])
-        
-        return self.memory.remember(
-            content,
-            id="_".join(id_parts),
-            metadata=metadata
-        )
+    def recall(query):
+        return memory.recall(query, user_id=user_id)
+    
+    return remember, recall
+
+# Give each user's agent their own tools
+user_memory = create_user_memory("user_123")
+agent = Agent(tools=user_memory)
 ```
 
-### Hierarchical Memory
+### Session Context
 
 ```python
-class HierarchicalMemory:
-    def __init__(self, memory):
-        self.memory = memory
-        self.hierarchy = {
-            "user": ["preferences", "history", "profile"],
-            "system": ["config", "state", "errors"],
-            "conversation": ["context", "summary", "topics"]
-        }
-    
-    def store(self, content, level1, level2):
-        if level1 not in self.hierarchy:
-            raise ValueError(f"Unknown category: {level1}")
-        
-        if level2 not in self.hierarchy[level1]:
-            raise ValueError(f"Unknown subcategory: {level2}")
-        
-        return self.memory.remember(
-            content,
-            metadata={
-                "hierarchy": f"{level1}/{level2}",
-                "level1": level1,
-                "level2": level2
-            }
-        )
+# Track conversation context
+session_id = str(uuid.uuid4())
+
+# Agent stores context per session
+memory.remember(
+    {"topic": "debugging React hooks", "session": session_id}
+)
+
+# Later, retrieve session context
+context = memory.recall("discussion topics", metadata={"session": session_id})
 ```
 
-## Performance Optimization
-
-### 1. Batch Operations
+### Critical Information
 
 ```python
-def batch_remember(memories):
-    """Store multiple memories efficiently"""
-    results = []
-    for memory_data in memories:
-        result = memory.remember(
-            memory_data["content"],
-            id=memory_data.get("id"),
-            metadata=memory_data.get("metadata")
-        )
-        results.append(result)
-    return results
+# Mark important stuff
+memory.remember(
+    content={"api_key": "sk-...", "expires": "2024-12-01"},
+    metadata={"critical": True, "type": "credential"}
+)
 
-# Usage
-memories_to_store = [
-    {"content": "Preference 1", "metadata": {"type": "pref"}},
-    {"content": "Preference 2", "metadata": {"type": "pref"}},
-    {"content": "Setting 1", "metadata": {"type": "config"}}
-]
-batch_remember(memories_to_store)
+# Agent can prioritize critical memories
+critical = memory.recall("critical information")
 ```
 
-### 2. Lazy Loading
+## Real-World Tips
+
+### Handle Failures Gracefully
 
 ```python
-class LazyMemory:
-    def __init__(self, memory):
-        self.memory = memory
-        self._cache = {}
-    
-    def get_or_recall(self, id=None, query=None):
-        """Get by ID if available, otherwise search"""
-        if id and id in self._cache:
-            return self._cache[id]
-        
-        if id:
-            result = self.memory.get(id)
-            self._cache[id] = result
-            return result
-        
-        if query:
-            return self.memory.recall(query)
+def safe_recall(query, default="No memory found"):
+    try:
+        result = memory.recall(query)
+        return result if result else default
+    except:
+        return default
+
+# Your agent keeps working even if memory fails
+context = safe_recall("user preferences")
 ```
 
-### 3. Memory Compression
+### Don't Store Secrets
 
 ```python
-def compress_memory(content, max_length=1000):
-    """Compress long content before storing"""
-    if isinstance(content, str) and len(content) > max_length:
-        # Summarize or compress
-        summary = summarize_text(content)  # Your summarization logic
-        return {
-            "summary": summary,
-            "full_content_hash": hashlib.md5(content.encode()).hexdigest(),
-            "truncated": True
-        }
-    return content
+# ❌ NEVER store sensitive data
+memory.remember("password123")  # Don't!
+memory.remember("ssn: 123-45-6789")  # Don't!
+
+# ✅ Store references instead
+memory.remember("User authenticated successfully")
+memory.remember("Payment method on file")
 ```
 
-## Error Handling
-
-### Robust Memory Operations
+### Clean Up Old Memories
 
 ```python
-class RobustMemory:
-    def __init__(self, memory, max_retries=3):
-        self.memory = memory
-        self.max_retries = max_retries
-    
-    def safe_remember(self, content, **kwargs):
-        """Remember with retry logic"""
-        for attempt in range(self.max_retries):
-            try:
-                return self.memory.remember(content, **kwargs)
-            except Exception as e:
-                if attempt == self.max_retries - 1:
-                    # Log error and return None
-                    print(f"Failed to store memory: {e}")
-                    return None
-                time.sleep(2 ** attempt)  # Exponential backoff
-    
-    def safe_recall(self, query, default=None, **kwargs):
-        """Recall with fallback"""
-        try:
-            results = self.memory.recall(query, **kwargs)
-            return results if results else default
-        except Exception as e:
-            print(f"Recall failed: {e}")
-            return default
+# Periodically clean up
+memory.forget_before("2023-01-01")  # Remove old data
+
+# Or let your agent decide
+if memory.get_stats().total_memories > 10000:
+    # Agent decides what to keep
+    agent.execute("Clean up old unimportant memories")
 ```
 
-## Security & Privacy
+## Quick Checklist
 
-### 1. Data Sanitization
+### Do's ✅
+- Let agents control their memory
+- Store structured data (dicts/objects)
+- Use user_id to segment memories
+- Handle failures gracefully
+- Clean up old memories periodically
+
+### Don'ts ❌
+- Hardcode memory rules
+- Store passwords or sensitive data  
+- Forget to handle errors
+- Let memory grow infinitely
+- Mix different users' data
+
+## Advanced: Multi-Agent Memory
 
 ```python
-def sanitize_before_store(content):
-    """Remove sensitive information before storing"""
-    import re
-    
-    # Remove potential PII
-    patterns = {
-        r'\b\d{3}-\d{2}-\d{4}\b': '[SSN]',  # SSN
-        r'\b\d{16}\b': '[CARD]',  # Credit card
-        r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b': '[EMAIL]'
-    }
-    
-    sanitized = content
-    for pattern, replacement in patterns.items():
-        sanitized = re.sub(pattern, replacement, sanitized)
-    
-    return sanitized
+# Agents can share memory
+sales_agent = Agent(tools=[memory.remember, memory.recall])
+support_agent = Agent(tools=[memory.recall])  # Read-only
+
+# Sales agent stores customer info
+sales_agent: "Customer interested in enterprise plan"
+
+# Support agent can access it
+support_agent: memory.recall("customer plan interest")
+# "Customer interested in enterprise plan"
 ```
 
-### 2. User Isolation
+## Get Help
 
-```python
-class UserScopedMemory:
-    def __init__(self, memory, user_id):
-        self.memory = memory
-        self.user_id = user_id
-    
-    def remember(self, content, **kwargs):
-        # Always include user_id in metadata
-        metadata = kwargs.get('metadata', {})
-        metadata['user_id'] = self.user_id
-        kwargs['metadata'] = metadata
-        
-        # Prefix ID with user_id
-        if 'id' in kwargs:
-            kwargs['id'] = f"{self.user_id}_{kwargs['id']}"
-        
-        return self.memory.remember(content, **kwargs)
-    
-    def recall(self, query, **kwargs):
-        # Always filter by user_id
-        metadata_filter = kwargs.get('metadata_filter', {})
-        metadata_filter['user_id'] = self.user_id
-        kwargs['metadata_filter'] = metadata_filter
-        
-        return self.memory.recall(query, **kwargs)
-```
-
-## Lifecycle Management
-
-### 1. TTL Strategy
-
-```python
-def determine_ttl(content, metadata):
-    """Determine appropriate TTL based on content type"""
-    ttl_rules = {
-        "temporary": 3600,      # 1 hour
-        "session": 86400,       # 1 day
-        "cache": 300,          # 5 minutes
-        "user_preference": None,  # No expiry
-        "config": None         # No expiry
-    }
-    
-    content_type = metadata.get("type", "default")
-    return ttl_rules.get(content_type, 604800)  # Default: 1 week
-```
-
-### 2. Memory Pruning
-
-```python
-def prune_old_memories(days=30, keep_important=True):
-    """Remove old, less important memories"""
-    cutoff = datetime.now() - timedelta(days=days)
-    
-    # Get all memories (pagination would be needed for large sets)
-    all_memories = memory.recall("*", limit=1000)
-    
-    for mem in all_memories:
-        # Keep important memories
-        if keep_important and mem.get('metadata', {}).get('importance') == 'high':
-            continue
-        
-        # Delete old memories
-        if mem['timestamp'] < cutoff.isoformat():
-            memory.delete(mem['id'])
-```
-
-### 3. Memory Archival
-
-```python
-class ArchivableMemory:
-    def __init__(self, memory, archive_storage):
-        self.memory = memory
-        self.archive = archive_storage
-    
-    def archive_old(self, days=90):
-        """Move old memories to archive"""
-        cutoff = datetime.now() - timedelta(days=days)
-        
-        old_memories = memory.recall(
-            "all memories",
-            metadata_filter={"timestamp": {"$lt": cutoff.isoformat()}}
-        )
-        
-        for mem in old_memories:
-            # Store in archive
-            self.archive.store(mem)
-            # Remove from active memory
-            self.memory.delete(mem['id'])
-        
-        return len(old_memories)
-```
-
-## Monitoring & Analytics
-
-### Memory Usage Tracking
-
-```python
-class MonitoredMemory:
-    def __init__(self, memory):
-        self.memory = memory
-        self.stats = {
-            "stores": 0,
-            "recalls": 0,
-            "hits": 0,
-            "misses": 0
-        }
-    
-    def remember(self, content, **kwargs):
-        self.stats["stores"] += 1
-        return self.memory.remember(content, **kwargs)
-    
-    def recall(self, query, **kwargs):
-        self.stats["recalls"] += 1
-        results = self.memory.recall(query, **kwargs)
-        
-        if results:
-            self.stats["hits"] += 1
-        else:
-            self.stats["misses"] += 1
-        
-        return results
-    
-    def get_stats(self):
-        hit_rate = self.stats["hits"] / max(self.stats["recalls"], 1)
-        return {
-            **self.stats,
-            "hit_rate": hit_rate
-        }
-```
-
-## Common Pitfalls to Avoid
-
-1. **Over-storing**: Don't store everything - be selective
-2. **Under-structuring**: Use structured data instead of plain strings
-3. **No cleanup**: Implement TTL or pruning strategies
-4. **Ignoring errors**: Always handle API failures gracefully
-5. **No user isolation**: Keep user data separated
-6. **Missing context**: Include relevant metadata
-7. **Poor ID choices**: Use meaningful, consistent IDs
-8. **No monitoring**: Track memory usage and performance
+- **Discord**: [Join our community](https://discord.gg/agentmind)
+- **GitHub**: [Report issues](https://github.com/muiez/agentmind)
+- **Docs**: [Full API reference](/api-reference/introduction)
