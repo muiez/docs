@@ -67,12 +67,12 @@
       ]
     },
     {
-      "group": "Framework Integration",
+      "group": "LLM Integration",
       "pages": [
-        "essentials/openai-function-calling",
-        "essentials/anthropic-integration",
-        "essentials/langchain-integration",
-        "essentials/smolagents-tool"
+        "essentials/openai",
+        "essentials/anthropic",
+        "essentials/langchain",
+        "essentials/smolagents"
       ]
     },
     {
