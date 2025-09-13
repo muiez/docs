@@ -181,6 +181,6 @@ const data = await response.json();
 
 ## Performance Notes
 
-- Direct ID lookup is O(1) and typically returns in <10ms
-- Including embeddings adds ~2-5ms to response time
+- Direct ID lookup is O(1) and typically returns in less than 10ms
+- Including embeddings adds approximately 2-5ms to response time
 - Memory content is returned exactly as stored (preserves types)
