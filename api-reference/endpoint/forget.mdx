@@ -1,0 +1,202 @@
+---
+title: 'Forget'
+api: 'POST /api/v1/memories/forget'
+description: 'Intelligently forget/delete memories matching a query'
+authMethod: 'bearer'
+---
+
+<Note>
+  **HTTP Method:** `POST`
+  **Endpoint:** `/api/v1/memories/forget`
+</Note>
+
+## Overview
+
+Intelligently forget or delete memories that match a specific query. This endpoint allows you to remove memories based on natural language queries, making it easy to clean up outdated or irrelevant information.
+
+## Request Body
+
+<ParamField body="query" type="string" required>
+  Natural language query to identify memories to forget. The system will find and delete memories matching this query.
+</ParamField>
+
+<ParamField body="user_id" type="string">
+  Limit deletion to memories associated with a specific user.
+</ParamField>
+
+<ParamField body="limit" type="integer" default="10">
+  Maximum number of memories to delete in a single request. Default is 10.
+</ParamField>
+
+<ParamField body="confirm_all" type="boolean" default="false">
+  If true, deletes all matching memories without limit. Use with caution.
+</ParamField>
+
+## Response
+
+Returns information about the memories that were deleted.
+
+## Examples
+
+### Basic Forget Operation
+
+<CodeGroup>
+
+```python Python
+import requests
+
+url = "https://api.agent-mind.com/api/v1/memories/forget"
+headers = {
+    "Authorization": "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json"
+}
+data = {
+    "query": "old error messages",
+    "limit": 5
+}
+
+response = requests.post(url, json=data, headers=headers)
+result = response.json()
+```
+
+```bash cURL
+curl -X POST https://api.agent-mind.com/api/v1/memories/forget \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type": "application/json" \
+  -d '{
+    "query": "old error messages",
+    "limit": 5
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.agent-mind.com/api/v1/memories/forget', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    query: "old error messages",
+    limit: 5
+  })
+});
+
+const result = await response.json();
+```
+
+</CodeGroup>
+
+### User-Specific Forget
+
+<CodeGroup>
+
+```python Python
+data = {
+    "query": "temporary preferences",
+    "user_id": "user_123",
+    "limit": 10
+}
+
+response = requests.post(url, json=data, headers=headers)
+```
+
+```bash cURL
+curl -X POST https://api.agent-mind.com/api/v1/memories/forget \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type": "application/json" \
+  -d '{
+    "query": "temporary preferences",
+    "user_id": "user_123",
+    "limit": 10
+  }'
+```
+
+</CodeGroup>
+
+### Delete All Matching (Use Carefully)
+
+<CodeGroup>
+
+```python Python
+data = {
+    "query": "test data",
+    "user_id": "test_user",
+    "confirm_all": True
+}
+
+response = requests.post(url, json=data, headers=headers)
+```
+
+```bash cURL
+curl -X POST https://api.agent-mind.com/api/v1/memories/forget \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type": "application/json" \
+  -d '{
+    "query": "test data",
+    "user_id": "test_user",
+    "confirm_all": true
+  }'
+```
+
+</CodeGroup>
+
+## Response Example
+
+```json
+{
+  "deleted_count": 3,
+  "deleted_memories": [
+    {
+      "id": "mem_abc123",
+      "content": "Error: Connection timeout",
+      "deleted_at": "2024-03-20T14:30:00Z"
+    },
+    {
+      "id": "mem_def456",
+      "content": "Error: Rate limit exceeded",
+      "deleted_at": "2024-03-20T14:30:00Z"
+    },
+    {
+      "id": "mem_ghi789",
+      "content": "Error: Invalid token",
+      "deleted_at": "2024-03-20T14:30:00Z"
+    }
+  ],
+  "status": "success"
+}
+```
+
+## Error Responses
+
+### 400 Bad Request
+
+```json
+{
+  "error": "Query parameter is required"
+}
+```
+
+### 401 Unauthorized
+
+```json
+{
+  "error": "Invalid or missing API key"
+}
+```
+
+### 404 Not Found
+
+```json
+{
+  "error": "No memories found matching the query"
+}
+```
+
+### 500 Internal Server Error
+
+```json
+{
+  "error": "Failed to forget memories"
+}
+```

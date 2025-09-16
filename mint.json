@@ -91,9 +91,11 @@
     {
       "group": "API Endpoints",
       "pages": [
-        "api-reference/endpoint/create",
-        "api-reference/endpoint/get",
-        "api-reference/endpoint/search",
+        "api-reference/endpoint/remember",
+        "api-reference/endpoint/recall",
+        "api-reference/endpoint/forget",
+        "api-reference/endpoint/list",
+        "api-reference/endpoint/update",
         "api-reference/endpoint/delete"
       ]
     }

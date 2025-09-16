@@ -1,61 +1,56 @@
 ---
 title: 'Delete Memory'
-api: 'DELETE /memories/{id}'
-description: 'Remove a memory from storage'
+api: 'DELETE /api/v1/memories/delete/{memory_id}'
+description: 'Delete a specific memory owned by the authenticated user'
 authMethod: 'bearer'
 ---
 
 <Note>
-  **HTTP Method:** `DELETE`  
-  **Endpoint:** `/memories/{id}`
+  **HTTP Method:** `DELETE`
+  **Endpoint:** `/api/v1/memories/delete/{memory_id}`
 </Note>
 
 ## Overview
 
-Delete a specific memory entry from your agent's memory bank. This operation is permanent and cannot be undone.
+Delete a specific memory from your agent's memory bank by its unique identifier. Only memories owned by the authenticated user can be deleted. This operation is permanent and cannot be undone.
 
-## Request
+## Path Parameters
 
-<ParamField path="id" type="string" required>
+<ParamField path="memory_id" type="string" required>
   The unique identifier of the memory to delete
 </ParamField>
 
 ## Response
 
-<ResponseField name="status" type="string">
-  Status of the operation ("success")
-</ResponseField>
-
-<ResponseField name="id" type="string">
-  The ID of the deleted memory
-</ResponseField>
-
-<ResponseField name="message" type="string">
-  Confirmation message
-</ResponseField>
+Returns confirmation of the deletion operation.
 
 ## Examples
 
-### Delete Memory
+### Delete a Memory
 
 <CodeGroup>
 
 ```python Python
-from agentmind import Memory
+import requests
 
-memory = Memory(api_key="YOUR_API_KEY")
+memory_id = "mem_abc123"
+url = f"https://api.agent-mind.com/api/v1/memories/delete/{memory_id}"
+headers = {
+    "Authorization": "Bearer YOUR_API_KEY"
+}
 
-# Delete a specific memory
-memory.delete("mem_abc123")
+response = requests.delete(url, headers=headers)
+result = response.json()
 ```
 
 ```bash cURL
-curl -X DELETE https://api.agent-mind.com/v1/memories/mem_abc123 \
+curl -X DELETE https://api.agent-mind.com/api/v1/memories/delete/mem_abc123 \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
 ```javascript JavaScript
-const response = await fetch('https://api.agent-mind.com/v1/memories/mem_abc123', {
+const memoryId = "mem_abc123";
+const response = await fetch(`https://api.agent-mind.com/api/v1/memories/delete/${memoryId}`, {
   method: 'DELETE',
   headers: {
     'Authorization': 'Bearer YOUR_API_KEY'
@@ -72,66 +67,19 @@ const result = await response.json();
 ```json
 {
   "status": "success",
-  "id": "old_preference",
-  "message": "Memory successfully deleted"
+  "id": "mem_abc123",
+  "message": "Memory deleted successfully",
+  "deleted_at": "2024-03-20T14:30:00Z"
 }
-```
-
-## Bulk Delete
-
-For deleting multiple memories, use the batch endpoint:
-
-### Python SDK
-
-```python
-# Delete multiple memories at once
-memory.delete_many(["id1", "id2", "id3"])
-
-# Delete by metadata filter
-memory.delete_by_filter(
-    metadata_filter={"category": "temporary", "expired": True}
-)
-
-# Delete by age
-from datetime import datetime, timedelta
-
-cutoff_date = datetime.now() - timedelta(days=30)
-memory.delete_before(cutoff_date)
-```
-
-### REST API
-
-```bash
-# Batch delete
-curl -X POST https://api.agent-mind.com/v1/memories/delete-batch \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "ids": ["id1", "id2", "id3"]
-  }'
-
-# Delete by filter
-curl -X POST https://api.agent-mind.com/v1/memories/delete-by-filter \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "metadata_filter": {
-      "category": "temporary",
-      "session_id": "old_session_123"
-    }
-  }'
 ```
 
 ## Error Responses
 
-### 404 Not Found
+### 400 Bad Request
 
 ```json
 {
-  "error": {
-    "code": "memory_not_found",
-    "message": "No memory found with ID 'unknown_id'"
-  }
+  "error": "Invalid memory ID format"
 }
 ```
 
@@ -139,17 +87,30 @@ curl -X POST https://api.agent-mind.com/v1/memories/delete-by-filter \
 
 ```json
 {
-  "error": {
-    "code": "invalid_api_key",
-    "message": "The provided API key is invalid or expired"
-  }
+  "error": "Invalid or missing API key"
+}
+```
+
+### 404 Not Found
+
+```json
+{
+  "error": "Memory not found or not owned by user"
+}
+```
+
+### 500 Internal Server Error
+
+```json
+{
+  "error": "Failed to delete memory"
 }
 ```
 
 ## Important Notes
 
 - Deletion is **permanent** and cannot be undone
-- Deleting a non-existent memory returns 404, not an error
-- Bulk operations are atomic - either all succeed or all fail
-- Consider using TTL (time-to-live) for automatic expiration instead of manual deletion
-- Deleted memory IDs can be reused after deletion
+- Only the owner of a memory can delete it
+- Attempting to delete a non-existent memory returns 404
+- Consider using TTL (time-to-live) when creating memories for automatic expiration
+- Deleted memory IDs cannot be reused
