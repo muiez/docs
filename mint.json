@@ -37,9 +37,9 @@
   ],
   "anchors": [
     {
-      "name": "GitHub",
-      "icon": "github",
-      "url": "https://github.com/agentmind"
+      "name": "Interactive Examples",
+      "icon": "code",
+      "url": "https://github.com/muiez/agentmind-examples"
     },
     {
       "name": "Community",
@@ -49,7 +49,7 @@
     {
       "name": "Blog",
       "icon": "newspaper",
-      "url": "https://blog.agent-mind.com"
+      "url": "https://agent-mind.com/blog"
     }
   ],
   "navigation": [
@@ -79,8 +79,7 @@
       "group": "Core Concepts",
       "pages": [
         "essentials/memory-search",
-        "essentials/best-practices",
-        "essentials/settings"
+        "essentials/best-practices"
       ]
     },
     {
