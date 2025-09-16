@@ -91,17 +91,17 @@
     {
       "group": "API Endpoints",
       "pages": [
+        "api-reference/endpoint/list",
         "api-reference/endpoint/remember",
         "api-reference/endpoint/recall",
         "api-reference/endpoint/forget",
-        "api-reference/endpoint/list",
         "api-reference/endpoint/update",
         "api-reference/endpoint/delete"
       ]
     }
   ],
   "api": {
-    "baseUrl": "https://api.agent-mind.com/v1",
+    "baseUrl": "https://api.agent-mind.com",
     "auth": {
       "method": "bearer",
       "name": "Authorization"
