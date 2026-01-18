@@ -1,12 +1,12 @@
 ---
 title: 'LangChain'
-description: 'Build LangChain agents with persistent memory using AgentMind'
+description: 'Build LangChain agents with persistent memory using LeedAB'
 icon: 'link'
 ---
 
 ## Overview
 
-Integrate AgentMind with LangChain to create agents that maintain conversation history and can access long-term memory across sessions.
+Integrate LeedAB with LangChain to create agents that maintain conversation history and can access long-term memory across sessions.
 
 ## Setup
 
@@ -18,7 +18,7 @@ from langchain.tools import Tool
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from agentmind import Memory
 
-# Initialize AgentMind
+# Initialize LeedAB
 memory = Memory(api_key=os.getenv("AGENTMIND_API_KEY"))
 USER_ID = "langchain_user_001"
 
@@ -32,7 +32,7 @@ llm = ChatOpenAI(
 
 ## Create Memory Tools
 
-Define LangChain tools that interact with AgentMind:
+Define LangChain tools that interact with LeedAB:
 
 ```python
 def search_memory(query: str) -> str:
@@ -103,14 +103,14 @@ tools = [
 
 ## Custom Memory Class
 
-Create a custom LangChain memory class that uses AgentMind:
+Create a custom LangChain memory class that uses LeedAB:
 
 ```python
 from langchain.memory import BaseMemory
 from typing import Dict, Any, List
 
 class AgentMindMemory(BaseMemory):
-    """Custom LangChain memory backed by AgentMind"""
+    """Custom LangChain memory backed by LeedAB"""
     
     def __init__(self, memory: Memory, user_id: str, session_id: str = None):
         self.memory = memory
@@ -123,7 +123,7 @@ class AgentMindMemory(BaseMemory):
         return ["history", "context"]
     
     def save_context(self, inputs: Dict[str, Any], outputs: Dict[str, str]) -> None:
-        """Save conversation turn to AgentMind"""
+        """Save conversation turn to LeedAB"""
         # Store the conversation turn
         self.memory.remember(
             content={
@@ -145,7 +145,7 @@ class AgentMindMemory(BaseMemory):
         })
     
     def load_memory_variables(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
-        """Load relevant context from AgentMind"""
+        """Load relevant context from LeedAB"""
         # Get recent conversation history
         recent_history = self.conversation_history[-5:] if self.conversation_history else []
         

@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/schema.json",
-  "name": "agentmind",
+  "name": "LeedAB",
   "logo": {
     "dark": "/logo/dark.svg",
     "light": "/logo/light.svg"
@@ -132,14 +132,14 @@
     "raiseIssue": true
   },
   "search": {
-    "prompt": "Search agentmind docs..."
+    "prompt": "Search LeedAB docs..."
   },
   "metadata": {
-    "og:title": "AgentMind - Persistent Memory for AI Agents",
+    "og:title": "LeedAB - Persistent Memory for AI Agents",
     "og:description": "Give your AI agents memory that actually works. Faster support, better development, smarter sales. 5-minute integration.",
     "og:image": "/images/og-image.png",
     "twitter:card": "summary_large_image",
-    "twitter:title": "AgentMind - AI Agent Memory That Works",
+    "twitter:title": "LeedAB - AI Agent Memory That Works",
     "twitter:description": "Add persistent memory to any AI agent in 5 minutes. Never lose context again."
   }
 }

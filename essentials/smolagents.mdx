@@ -1,12 +1,12 @@
 ---
 title: 'Smolagents'
-description: 'Use AgentMind as a tool with HuggingFace Smolagents'
+description: 'Use LeedAB as a tool with HuggingFace Smolagents'
 icon: 'toolbox'
 ---
 
 ## Overview
 
-Integrate AgentMind with HuggingFace's Smolagents framework using the `@tool` decorator to give your agents persistent memory capabilities.
+Integrate LeedAB with HuggingFace's Smolagents framework using the `@tool` decorator to give your agents persistent memory capabilities.
 
 ## Setup
 
@@ -15,13 +15,13 @@ from smolagents import CodeAgent, Tool, tool
 from agentmind import Memory
 import os
 
-# Initialize AgentMind
+# Initialize LeedAB
 memory = Memory(api_key=os.getenv("AGENTMIND_API_KEY"))
 ```
 
 ## Create Memory Tools
 
-Define AgentMind tools using the `@tool` decorator:
+Define LeedAB tools using the `@tool` decorator:
 
 ```python
 @tool

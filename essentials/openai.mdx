@@ -1,12 +1,12 @@
 ---
 title: 'OpenAI'
-description: 'Use AgentMind with GPT models via function calling'
+description: 'Use LeedAB with GPT models via function calling'
 icon: 'brain'
 ---
 
 ## Overview
 
-This example shows how to give your OpenAI-powered agent the ability to remember and recall information using function calling with AgentMind.
+This example shows how to give your OpenAI-powered agent the ability to remember and recall information using function calling with LeedAB.
 
 ## Setup
 
@@ -89,7 +89,7 @@ Create functions to handle the OpenAI function calls:
 
 ```python
 def handle_remember(content: str, category: str = "other", importance: float = 0.5):
-    """Store information using AgentMind"""
+    """Store information using LeedAB"""
     try:
         memory_id = memory.remember(
             content=content,
@@ -112,7 +112,7 @@ def handle_remember(content: str, category: str = "other", importance: float = 0
         }
 
 def handle_recall(query: str, category: str = None):
-    """Retrieve information from AgentMind"""
+    """Retrieve information from LeedAB"""
     filters = {"user_id": USER_ID}
     if category:
         filters["category"] = category
