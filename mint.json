@@ -89,7 +89,16 @@
       ]
     },
     {
-      "group": "API Endpoints",
+      "group": "Agent API",
+      "pages": [
+        "api-reference/agent/chat",
+        "api-reference/agent/info",
+        "api-reference/agent/conversations",
+        "api-reference/agent/messages"
+      ]
+    },
+    {
+      "group": "Memory API",
       "pages": [
         "api-reference/endpoint/list",
         "api-reference/endpoint/remember",

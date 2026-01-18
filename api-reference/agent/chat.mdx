@@ -1,0 +1,363 @@
+---
+title: 'Chat'
+api: 'POST /api/v1/agent/chat'
+description: 'Send messages to your LeedAB agent via API'
+authMethod: 'bearer'
+---
+
+## Overview
+
+Chat with your configured LeedAB agent programmatically. Your agent has access to all your memories, custom tools, and web search capabilities. Perfect for building chatbots, customer support systems, or any application that needs intelligent AI responses.
+
+**Key Features:**
+- Access to all your memories (with user_id segmentation for multi-tenant apps)
+- All your custom tools available
+- Web search and webpage reading built-in
+- Streaming (SSE) or synchronous responses
+- Persistent conversation history
+
+## Request Body
+
+<ParamField body="message" type="string" required>
+  The message to send to the agent.
+</ParamField>
+
+<ParamField body="conversation_id" type="string">
+  Continue an existing conversation. If not provided, a new conversation is created.
+</ParamField>
+
+<ParamField body="user_id" type="string">
+  **Important for multi-tenant apps:** Segment memories by end-user. When provided, the agent's `remember`, `recall`, and `forget` tools only access memories tagged with this user_id. This lets you serve multiple end-users while keeping their data separate.
+</ParamField>
+
+<ParamField body="session_id" type="string">
+  Optional session identifier for grouping related conversations. Useful for filtering conversations later.
+</ParamField>
+
+<ParamField body="context" type="object">
+  Additional context to include with the message. Key-value pairs that will be prepended to the message.
+</ParamField>
+
+<ParamField body="stream" type="boolean" default="true">
+  Whether to stream the response (Server-Sent Events) or return the complete response. Default is streaming.
+</ParamField>
+
+## Response
+
+### Non-Streaming Response (stream: false)
+
+Returns the complete agent response as JSON.
+
+```json
+{
+  "response": "Based on your previous meetings, here's a summary...",
+  "conversation_id": "550e8400-e29b-41d4-a716-446655440000",
+  "message_id": "660e8400-e29b-41d4-a716-446655440001",
+  "user_id": "customer_123",
+  "credits_remaining": 94,
+  "credits_used": 1
+}
+```
+
+### Streaming Response (stream: true)
+
+Returns Server-Sent Events (SSE) with real-time agent output.
+
+```
+data: {"type": "thinking", "content": "", "metadata": {"conversation_id": "...", "message_id": "..."}}
+
+data: {"type": "thinking_step", "content": "Let me search my memories...", "metadata": {"step_number": 1}}
+
+data: {"type": "tool_start", "content": "", "metadata": {"tool_name": "recall", "arguments": {"query": "meetings"}}}
+
+data: {"type": "tool_end", "content": "Found 3 relevant memories...", "metadata": {"step_number": 2}}
+
+data: {"type": "complete", "content": "Based on your previous meetings, here's a summary..."}
+
+data: [DONE]
+```
+
+## Examples
+
+### Basic Chat
+
+<CodeGroup>
+
+```python Python
+import requests
+
+url = "https://api.leedab.com/api/v1/agent/chat"
+headers = {
+    "Authorization": "Bearer am_live_your_api_key",
+    "Content-Type": "application/json"
+}
+data = {
+    "message": "What do you know about my project?",
+    "stream": False
+}
+
+response = requests.post(url, json=data, headers=headers)
+result = response.json()
+print(result["response"])
+```
+
+```bash cURL
+curl -X POST https://api.leedab.com/api/v1/agent/chat \
+  -H "Authorization: Bearer am_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "What do you know about my project?",
+    "stream": false
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.leedab.com/api/v1/agent/chat', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer am_live_your_api_key',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    message: "What do you know about my project?",
+    stream: false
+  })
+});
+
+const result = await response.json();
+console.log(result.response);
+```
+
+</CodeGroup>
+
+### Multi-Tenant App (User Segmentation)
+
+Use `user_id` to give each of your end-users their own memory space:
+
+<CodeGroup>
+
+```python Python
+# Each customer gets their own segmented memories
+data = {
+    "message": "Remember that I prefer dark mode",
+    "user_id": "customer_123",  # This customer's memories are isolated
+    "stream": False
+}
+response = requests.post(url, json=data, headers=headers)
+
+# Later, when this customer returns
+data = {
+    "message": "What are my preferences?",
+    "user_id": "customer_123",  # Only sees their own memories
+    "stream": False
+}
+response = requests.post(url, json=data, headers=headers)
+```
+
+```bash cURL
+# Store a preference for customer_123
+curl -X POST https://api.leedab.com/api/v1/agent/chat \
+  -H "Authorization: Bearer am_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "Remember that I prefer dark mode",
+    "user_id": "customer_123",
+    "stream": false
+  }'
+
+# Recall only customer_123's memories
+curl -X POST https://api.leedab.com/api/v1/agent/chat \
+  -H "Authorization: Bearer am_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "What are my preferences?",
+    "user_id": "customer_123",
+    "stream": false
+  }'
+```
+
+</CodeGroup>
+
+### Streaming Response
+
+<CodeGroup>
+
+```python Python
+import requests
+
+url = "https://api.leedab.com/api/v1/agent/chat"
+headers = {
+    "Authorization": "Bearer am_live_your_api_key",
+    "Content-Type": "application/json"
+}
+data = {
+    "message": "Summarize my recent meetings",
+    "stream": True  # Default
+}
+
+# Stream the response
+response = requests.post(url, json=data, headers=headers, stream=True)
+for line in response.iter_lines():
+    if line:
+        line = line.decode('utf-8')
+        if line.startswith('data: '):
+            event_data = line[6:]  # Remove 'data: ' prefix
+            if event_data == '[DONE]':
+                break
+            print(event_data)
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.leedab.com/api/v1/agent/chat', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer am_live_your_api_key',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    message: "Summarize my recent meetings"
+  })
+});
+
+const reader = response.body.getReader();
+const decoder = new TextDecoder();
+
+while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
+
+  const chunk = decoder.decode(value);
+  const lines = chunk.split('\n');
+
+  for (const line of lines) {
+    if (line.startsWith('data: ')) {
+      const data = line.slice(6);
+      if (data === '[DONE]') break;
+      console.log(JSON.parse(data));
+    }
+  }
+}
+```
+
+</CodeGroup>
+
+### Continue Conversation
+
+<CodeGroup>
+
+```python Python
+# First message creates a conversation
+data = {"message": "Hi, I'm working on a Python project", "stream": False}
+response = requests.post(url, json=data, headers=headers)
+conversation_id = response.json()["conversation_id"]
+
+# Continue the same conversation
+data = {
+    "message": "What libraries should I use for web scraping?",
+    "conversation_id": conversation_id,
+    "stream": False
+}
+response = requests.post(url, json=data, headers=headers)
+```
+
+```bash cURL
+# First message
+curl -X POST https://api.leedab.com/api/v1/agent/chat \
+  -H "Authorization: Bearer am_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Hi, I am working on a Python project", "stream": false}'
+
+# Returns conversation_id, use it to continue
+curl -X POST https://api.leedab.com/api/v1/agent/chat \
+  -H "Authorization: Bearer am_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "What libraries should I use for web scraping?",
+    "conversation_id": "550e8400-e29b-41d4-a716-446655440000",
+    "stream": false
+  }'
+```
+
+</CodeGroup>
+
+### With External Context
+
+<CodeGroup>
+
+```python Python
+data = {
+    "message": "Help me debug this issue",
+    "context": {
+        "current_page": "/checkout",
+        "cart_total": "$149.99",
+        "error_code": "PAYMENT_FAILED"
+    },
+    "user_id": "customer_456",
+    "stream": False
+}
+response = requests.post(url, json=data, headers=headers)
+```
+
+```bash cURL
+curl -X POST https://api.leedab.com/api/v1/agent/chat \
+  -H "Authorization: Bearer am_live_your_api_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "Help me debug this issue",
+    "context": {
+      "current_page": "/checkout",
+      "cart_total": "$149.99",
+      "error_code": "PAYMENT_FAILED"
+    },
+    "user_id": "customer_456",
+    "stream": false
+  }'
+```
+
+</CodeGroup>
+
+## Streaming Event Types
+
+When `stream: true`, you'll receive these event types:
+
+| Type | Description |
+|------|-------------|
+| `thinking` | Initial event with conversation/message IDs |
+| `thinking_step` | Agent's reasoning process |
+| `planning` | Agent's plan for the task |
+| `code_action` | Python code being executed |
+| `tool_start` | Tool invocation starting |
+| `tool_end` | Tool result |
+| `complete` | Final agent response |
+| `error` | Error message if something went wrong |
+
+## Error Responses
+
+### 402 Payment Required
+
+```json
+{
+  "error": "insufficient_credits",
+  "message": "You've run out of credits. Purchase more at https://app.leedab.com/billing",
+  "balance": 0,
+  "total_purchased": 100
+}
+```
+
+### 404 Not Found
+
+```json
+{
+  "error": "conversation_not_found",
+  "message": "Conversation not found"
+}
+```
+
+### 500 Internal Server Error
+
+```json
+{
+  "error": "agent_error",
+  "message": "Error details here"
+}
+```

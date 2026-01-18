@@ -1,0 +1,82 @@
+---
+title: 'Info'
+api: 'GET /api/v1/agent/info'
+description: 'Get information about your agent and account'
+authMethod: 'bearer'
+---
+
+## Overview
+
+Get information about your agent setup and account status, including credit balance, tool count, memory count, and conversation count.
+
+## Response
+
+```json
+{
+  "status": "active",
+  "credits_remaining": 94,
+  "total_credits_purchased": 100,
+  "tools_available": 5,
+  "memories_count": 127,
+  "conversations_count": 23
+}
+```
+
+## Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `status` | string | Agent status (always "active") |
+| `credits_remaining` | integer | Credits available for API calls |
+| `total_credits_purchased` | integer | Total credits ever purchased |
+| `tools_available` | integer | Number of active custom tools |
+| `memories_count` | integer | Total memories stored |
+| `conversations_count` | integer | Total conversations created |
+
+## Examples
+
+<CodeGroup>
+
+```python Python
+import requests
+
+url = "https://api.leedab.com/api/v1/agent/info"
+headers = {
+    "Authorization": "Bearer am_live_your_api_key"
+}
+
+response = requests.get(url, headers=headers)
+info = response.json()
+
+print(f"Credits: {info['credits_remaining']}")
+print(f"Tools: {info['tools_available']}")
+print(f"Memories: {info['memories_count']}")
+```
+
+```bash cURL
+curl -X GET https://api.leedab.com/api/v1/agent/info \
+  -H "Authorization: Bearer am_live_your_api_key"
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.leedab.com/api/v1/agent/info', {
+  headers: {
+    'Authorization': 'Bearer am_live_your_api_key'
+  }
+});
+
+const info = await response.json();
+console.log(`Credits: ${info.credits_remaining}`);
+```
+
+</CodeGroup>
+
+## Error Responses
+
+### 401 Unauthorized
+
+```json
+{
+  "detail": "Invalid or missing API key"
+}
+```
