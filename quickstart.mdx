@@ -104,6 +104,72 @@ result = memory.recall("enterprise customers")
 # Returns the Acme Corp data
 ```
 
+## Deploy as API (Agent Chat)
+
+Already configured your agent in LeedAB? Access it programmatically:
+
+```python
+import requests
+
+# Your agent with all its memories and tools, available via API
+response = requests.post(
+    "https://api.leedab.com/api/v1/agent/chat",
+    headers={"Authorization": "Bearer am_live_your_key"},
+    json={"message": "Summarize my recent meetings", "stream": False}
+)
+print(response.json()["response"])
+```
+
+### Multi-Tenant Apps
+
+Segment memories by end-user with `user_id`:
+
+```python
+# Each customer gets their own memory space
+response = requests.post(
+    "https://api.leedab.com/api/v1/agent/chat",
+    headers={"Authorization": "Bearer am_live_your_key"},
+    json={
+        "message": "Remember I prefer dark mode",
+        "user_id": "customer_123",  # Isolated memory space
+        "stream": False
+    }
+)
+
+# Later, same customer - agent recalls their preferences
+response = requests.post(
+    "https://api.leedab.com/api/v1/agent/chat",
+    headers={"Authorization": "Bearer am_live_your_key"},
+    json={
+        "message": "What are my preferences?",
+        "user_id": "customer_123",
+        "stream": False
+    }
+)
+# Returns: "You prefer dark mode"
+```
+
+### Streaming Responses
+
+```javascript
+// Real-time streaming with Server-Sent Events
+const response = await fetch('https://api.leedab.com/api/v1/agent/chat', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer am_live_your_key',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ message: "Help me debug this" })
+});
+
+const reader = response.body.getReader();
+// Process streaming events...
+```
+
+<Card title="Full Agent API Reference" icon="bolt" href="/api-reference/agent/chat">
+  See all endpoints: chat, info, conversations, messages
+</Card>
+
 ## Framework Examples
 
 <CardGroup cols={2}>

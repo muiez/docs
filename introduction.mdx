@@ -93,6 +93,29 @@ def recall_tool(query: str):
 agent = YourAgent(tools=[remember_tool, recall_tool])
 ```
 
+## Deploy Your Agent as an API
+
+Already have your agent configured? Deploy it instantly with one API call:
+
+```python
+import requests
+
+# Chat with your agent via API
+response = requests.post(
+    "https://api.leedab.com/api/v1/agent/chat",
+    headers={"Authorization": "Bearer am_live_your_key"},
+    json={
+        "message": "What do you know about my project?",
+        "user_id": "customer_123",  # Segment memories per end-user
+        "stream": False
+    }
+)
+
+print(response.json()["response"])
+```
+
+Your agent has access to all your memories, custom tools, and web search - ready for production.
+
 ## Who's Already Using It
 
 **Customer Support** → *"Our agents resolve tickets faster by remembering every customer's history"*
