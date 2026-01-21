@@ -28,7 +28,7 @@ results = memory.recall("What does the user love?")
 
 ```bash
 # Base URL
-https://api.agent-mind.com/v1
+https://api.leedab.com/v1
 
 # Auth Header
 Authorization: Bearer YOUR_API_KEY
@@ -86,12 +86,12 @@ results = memory.recall("What language does the user know?")
 
 ```bash
 # Store
-curl -X POST https://api.agent-mind.com/v1/memories \
+curl -X POST https://api.leedab.com/v1/memories \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{"content": "User is a Python developer"}'
 
 # Search  
-curl -X POST https://api.agent-mind.com/v1/memories/search \
+curl -X POST https://api.leedab.com/v1/memories/search \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{"query": "What language does the user know?"}'
 ```

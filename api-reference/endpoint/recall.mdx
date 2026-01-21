@@ -48,7 +48,7 @@ Returns an array of relevant memories matching your query, sorted by relevance.
 ```python Python
 import requests
 
-url = "https://api.agent-mind.com/api/v1/memories/recall"
+url = "https://api.leedab.com/api/v1/memories/recall"
 headers = {
     "Authorization": "Bearer YOUR_API_KEY",
     "Content-Type": "application/json"
@@ -63,7 +63,7 @@ memories = response.json()
 ```
 
 ```bash cURL
-curl -X POST https://api.agent-mind.com/api/v1/memories/recall \
+curl -X POST https://api.leedab.com/api/v1/memories/recall \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: "application/json" \
   -d '{
@@ -73,7 +73,7 @@ curl -X POST https://api.agent-mind.com/api/v1/memories/recall \
 ```
 
 ```javascript JavaScript
-const response = await fetch('https://api.agent-mind.com/api/v1/memories/recall', {
+const response = await fetch('https://api.leedab.com/api/v1/memories/recall', {
   method: 'POST',
   headers: {
     'Authorization': 'Bearer YOUR_API_KEY',
@@ -106,7 +106,7 @@ response = requests.post(url, json=data, headers=headers)
 ```
 
 ```bash cURL
-curl -X POST https://api.agent-mind.com/api/v1/memories/recall \
+curl -X POST https://api.leedab.com/api/v1/memories/recall \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type": "application/json" \
   -d '{
@@ -140,7 +140,7 @@ response = requests.post(url, json=data, headers=headers)
 ```
 
 ```bash cURL
-curl -X POST https://api.agent-mind.com/api/v1/memories/recall \
+curl -X POST https://api.leedab.com/api/v1/memories/recall \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type": "application/json" \
   -d '{

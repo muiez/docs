@@ -110,7 +110,7 @@
     }
   ],
   "api": {
-    "baseUrl": "https://api.agent-mind.com",
+    "baseUrl": "https://api.leedab.com",
     "auth": {
       "method": "bearer",
       "name": "Authorization"

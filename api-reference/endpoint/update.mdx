@@ -67,7 +67,7 @@ Returns the updated memory object with all current values.
 import requests
 
 memory_id = "mem_abc123"
-url = f"https://api.agent-mind.com/api/v1/memories/update/{memory_id}"
+url = f"https://api.leedab.com/api/v1/memories/update/{memory_id}"
 headers = {
     "Authorization": "Bearer YOUR_API_KEY",
     "Content-Type": "application/json"
@@ -82,7 +82,7 @@ updated_memory = response.json()
 ```
 
 ```bash cURL
-curl -X PUT https://api.agent-mind.com/api/v1/memories/update/mem_abc123 \
+curl -X PUT https://api.leedab.com/api/v1/memories/update/mem_abc123 \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type": "application/json" \
   -d '{
@@ -93,7 +93,7 @@ curl -X PUT https://api.agent-mind.com/api/v1/memories/update/mem_abc123 \
 
 ```javascript JavaScript
 const memoryId = "mem_abc123";
-const response = await fetch(`https://api.agent-mind.com/api/v1/memories/update/${memoryId}`, {
+const response = await fetch(`https://api.leedab.com/api/v1/memories/update/${memoryId}`, {
   method: 'PUT',
   headers: {
     'Authorization': 'Bearer YOUR_API_KEY',
@@ -130,7 +130,7 @@ response = requests.put(url, json=data, headers=headers)
 ```
 
 ```bash cURL
-curl -X PUT https://api.agent-mind.com/api/v1/memories/update/mem_abc123 \
+curl -X PUT https://api.leedab.com/api/v1/memories/update/mem_abc123 \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type": "application/json" \
   -d '{
@@ -173,7 +173,7 @@ response = requests.put(url, json=data, headers=headers)
 ```
 
 ```bash cURL
-curl -X PUT https://api.agent-mind.com/api/v1/memories/update/mem_abc123 \
+curl -X PUT https://api.leedab.com/api/v1/memories/update/mem_abc123 \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type": "application/json" \
   -d '{

@@ -36,7 +36,7 @@ Returns a paginated list of memories with their metadata and content.
 ```python Python
 import requests
 
-url = "https://api.agent-mind.com/api/v1/memories/list"
+url = "https://api.leedab.com/api/v1/memories/list"
 headers = {
     "Authorization": "Bearer YOUR_API_KEY"
 }
@@ -50,12 +50,12 @@ memories = response.json()
 ```
 
 ```bash cURL
-curl -X GET "https://api.agent-mind.com/api/v1/memories/list?limit=50&offset=0" \
+curl -X GET "https://api.leedab.com/api/v1/memories/list?limit=50&offset=0" \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
 ```javascript JavaScript
-const url = new URL('https://api.agent-mind.com/api/v1/memories/list');
+const url = new URL('https://api.leedab.com/api/v1/memories/list');
 url.searchParams.append('limit', '50');
 url.searchParams.append('offset', '0');
 
@@ -86,12 +86,12 @@ response = requests.get(url, headers=headers, params=params)
 ```
 
 ```bash cURL
-curl -X GET "https://api.agent-mind.com/api/v1/memories/list?user_id=user_123&limit=20&offset=0" \
+curl -X GET "https://api.leedab.com/api/v1/memories/list?user_id=user_123&limit=20&offset=0" \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
 ```javascript JavaScript
-const url = new URL('https://api.agent-mind.com/api/v1/memories/list');
+const url = new URL('https://api.leedab.com/api/v1/memories/list');
 url.searchParams.append('user_id', 'user_123');
 url.searchParams.append('limit', '20');
 url.searchParams.append('offset', '0');
@@ -121,7 +121,7 @@ response = requests.get(url, headers=headers, params=params)
 ```
 
 ```bash cURL
-curl -X GET "https://api.agent-mind.com/api/v1/memories/list?limit=50&offset=50" \
+curl -X GET "https://api.leedab.com/api/v1/memories/list?limit=50&offset=50" \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 

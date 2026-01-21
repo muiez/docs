@@ -29,7 +29,7 @@ Returns confirmation of the deletion operation.
 import requests
 
 memory_id = "mem_abc123"
-url = f"https://api.agent-mind.com/api/v1/memories/delete/{memory_id}"
+url = f"https://api.leedab.com/api/v1/memories/delete/{memory_id}"
 headers = {
     "Authorization": "Bearer YOUR_API_KEY"
 }
@@ -39,13 +39,13 @@ result = response.json()
 ```
 
 ```bash cURL
-curl -X DELETE https://api.agent-mind.com/api/v1/memories/delete/mem_abc123 \
+curl -X DELETE https://api.leedab.com/api/v1/memories/delete/mem_abc123 \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
 ```javascript JavaScript
 const memoryId = "mem_abc123";
-const response = await fetch(`https://api.agent-mind.com/api/v1/memories/delete/${memoryId}`, {
+const response = await fetch(`https://api.leedab.com/api/v1/memories/delete/${memoryId}`, {
   method: 'DELETE',
   headers: {
     'Authorization': 'Bearer YOUR_API_KEY'
