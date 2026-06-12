@@ -1,5 +1,11 @@
-<svg width="80" height="24" viewBox="0 0 80 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <text x="0" y="18" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="white">
-    LeedAB
-  </text>
+<svg width="122" height="24" viewBox="0 0 610 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="#F7F4EE" stroke-width="5" stroke-linecap="round">
+    <ellipse cx="60" cy="60" rx="41.62" ry="17.14" transform="rotate(10 60 60)"/>
+    <ellipse cx="60" cy="60" rx="38.76" ry="12.24" transform="rotate(46 60 60)"/>
+    <ellipse cx="60" cy="60" rx="42.84" ry="8.16" transform="rotate(82 60 60)"/>
+    <ellipse cx="60" cy="60" rx="39.17" ry="17.54" transform="rotate(122 60 60)"/>
+    <ellipse cx="60" cy="60" rx="36.72" ry="11.02" transform="rotate(150 60 60)"/>
+  </g>
+  <circle cx="60" cy="60" r="9" fill="#F7F4EE"/>
+  <text x="140" y="82" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="70" font-weight="600" fill="#F7F4EE" letter-spacing="0.5">LeedAB</text>
 </svg>
