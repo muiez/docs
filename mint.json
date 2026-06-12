@@ -7,139 +7,63 @@
   },
   "favicon": "/favicon.svg",
   "colors": {
-    "primary": "#6366F1",
-    "light": "#818CF8",
-    "dark": "#4F46E5",
+    "primary": "#3F73A0",
+    "light": "#5A8BB8",
+    "dark": "#2E5C84",
     "anchors": {
-      "from": "#6366F1",
-      "to": "#818CF8"
+      "from": "#3F73A0",
+      "to": "#5A8BB8"
     }
   },
   "topbarLinks": [
     {
-      "name": "Community",
-      "url": "https://agentmind.slack.com"
-    },
-    {
-      "name": "Support",
-      "url": "mailto:support@agent-mind.com"
+      "name": "Website",
+      "url": "https://leedab.com"
     }
   ],
   "topbarCtaButton": {
     "name": "Dashboard",
-    "url": "https://app.agent-mind.com"
+    "url": "https://leedab.com"
   },
-  "tabs": [
-    {
-      "name": "API Reference",
-      "url": "api-reference"
-    }
-  ],
-  "anchors": [
-    {
-      "name": "Interactive Examples",
-      "icon": "code",
-      "url": "https://github.com/muiez/agentmind-examples"
-    },
-    {
-      "name": "Community",
-      "icon": "slack",
-      "url": "https://agentmind.slack.com"
-    },
-    {
-      "name": "Blog",
-      "icon": "newspaper",
-      "url": "https://agent-mind.com/blog"
-    }
-  ],
   "navigation": [
     {
-      "group": "Start Here",
+      "group": "Start here",
       "pages": [
         "introduction",
         "quickstart"
       ]
     },
     {
-      "group": "Examples",
+      "group": "Core concepts",
       "pages": [
-        "essentials/quick-examples"
+        "essentials/workspaces",
+        "essentials/artificial-beings",
+        "essentials/the-coo",
+        "essentials/governance"
       ]
     },
     {
-      "group": "LLM Integration",
+      "group": "Using LeedAB",
       "pages": [
-        "essentials/openai",
-        "essentials/anthropic",
-        "essentials/langchain",
-        "essentials/smolagents"
-      ]
-    },
-    {
-      "group": "Core Concepts",
-      "pages": [
-        "essentials/memory-search",
-        "essentials/best-practices"
-      ]
-    },
-    {
-      "group": "API Documentation",
-      "pages": [
-        "api-reference/introduction"
-      ]
-    },
-    {
-      "group": "Agent API",
-      "pages": [
-        "api-reference/agent/chat",
-        "api-reference/agent/info",
-        "api-reference/agent/conversations",
-        "api-reference/agent/messages"
-      ]
-    },
-    {
-      "group": "Memory API",
-      "pages": [
-        "api-reference/endpoint/list",
-        "api-reference/endpoint/remember",
-        "api-reference/endpoint/recall",
-        "api-reference/endpoint/forget",
-        "api-reference/endpoint/update",
-        "api-reference/endpoint/delete"
+        "essentials/the-console",
+        "essentials/working-with-abs",
+        "essentials/sharing"
       ]
     }
   ],
-  "api": {
-    "baseUrl": "https://api.leedab.com",
-    "auth": {
-      "method": "bearer",
-      "name": "Authorization"
-    }
-  },
-  "footerSocials": {
-    "x": "https://x.com/agentmind",
-    "github": "https://github.com/agentmind",
-    "linkedin": "https://linkedin.com/company/agentmind"
-  },
-  "analytics": {
-    "ga4": {
-      "measurementId": "G-XXXXXXXXXX"
-    }
-  },
   "feedback": {
     "thumbsRating": true,
-    "suggestEdit": true,
-    "raiseIssue": true
+    "suggestEdit": true
   },
   "search": {
-    "prompt": "Search LeedAB docs..."
+    "prompt": "Search the LeedAB docs..."
   },
   "metadata": {
-    "og:title": "LeedAB - Persistent Memory for AI Agents",
-    "og:description": "Give your AI agents memory that actually works. Faster support, better development, smarter sales. 5-minute integration.",
+    "og:title": "LeedAB Docs - Artificial Beings that run your back office",
+    "og:description": "LeedAB hires a team of Artificial Beings that run your back office across your portals, inboxes, ERPs and spreadsheets. Every action is governed and audited.",
     "og:image": "/images/og-image.png",
     "twitter:card": "summary_large_image",
-    "twitter:title": "LeedAB - AI Agent Memory That Works",
-    "twitter:description": "Add persistent memory to any AI agent in 5 minutes. Never lose context again."
+    "twitter:title": "LeedAB Docs",
+    "twitter:description": "Artificial Beings that run your back office. Every action governed and audited."
   }
 }

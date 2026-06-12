@@ -1,0 +1,70 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "LeedAB",
+  "colors": {
+    "primary": "#3F73A0",
+    "light": "#5A8BB8",
+    "dark": "#2E5C84"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Start here",
+        "pages": [
+          "introduction",
+          "quickstart"
+        ]
+      },
+      {
+        "group": "Core concepts",
+        "pages": [
+          "essentials/workspaces",
+          "essentials/artificial-beings",
+          "essentials/the-coo",
+          "essentials/governance"
+        ]
+      },
+      {
+        "group": "Using LeedAB",
+        "pages": [
+          "essentials/the-console",
+          "essentials/working-with-abs",
+          "essentials/sharing"
+        ]
+      }
+    ]
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Website",
+        "href": "https://leedab.com"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Dashboard",
+      "href": "https://leedab.com"
+    }
+  },
+  "search": {
+    "prompt": "Search the LeedAB docs..."
+  },
+  "seo": {
+    "metatags": {
+      "og:title": "LeedAB Docs - Artificial Beings that run your back office",
+      "og:description": "LeedAB hires a team of Artificial Beings that run your back office across your portals, inboxes, ERPs and spreadsheets. Every action is governed and audited.",
+      "og:image": "/images/og-image.png",
+      "twitter:card": "summary_large_image",
+      "twitter:title": "LeedAB Docs",
+      "twitter:description": "Artificial Beings that run your back office. Every action governed and audited."
+    },
+    "indexing": "navigable"
+  }
+}

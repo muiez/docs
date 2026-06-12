@@ -1,204 +1,42 @@
 ---
-title: 'Quick Start'
-description: '5 minutes to agents with perfect memory'
+title: 'Quickstart'
+description: 'Create your workspace and meet your Artificial Beings in about two minutes.'
 ---
 
-## Install
+Getting started with LeedAB is not a coding task. You describe your operation, and LeedAB hires your team. Here is the whole flow.
 
-```bash
-pip install agentmind
-```
+<Steps>
+  <Step title="Create your workspace">
+    Pick a workspace name. This becomes your company's operating system at its own address. Each workspace is isolated: its own Artificial Beings, its own data, its own audit trail.
+  </Step>
+  <Step title="Tell LeedAB about your operation">
+    Add your title (for example COO, Founder, or Head of Ops) and a line about what you spend most of your time on, such as "chasing confirmations and reconciling invoices over email." A website is optional. This takes about two minutes.
+  </Step>
+  <Step title="Your Artificial Beings are hired">
+    LeedAB reads your operation and hires the right team. You can start from a template or let it tailor the team to you:
 
-## Get API Key
+    <CardGroup cols={2}>
+      <Card title="A template" icon="inbox">
+        A sensible starting team for your industry and role, ready to work your portals, inboxes, ERPs and spreadsheets.
+      </Card>
+      <Card title="Tailored to you" icon="wand-magic-sparkles">
+        LeedAB reads your operation and tunes the team from there, hiring the operators your work actually needs.
+      </Card>
+    </CardGroup>
+  </Step>
+  <Step title="Walk into your workspace">
+    Your team lands already briefed, with the first tasks queued. The COO is waiting on every screen with what needs your attention first.
+  </Step>
+</Steps>
 
-[Get your free key at agent-mind.com →](https://agent-mind.com)
+## What you will see
 
-## Add Memory to Your Agent (3 Steps)
+When the workspace opens, you are in the **console** — the place you work with your team.
 
-### Step 1: Initialize
+- The **COO** sits top-left on every screen. The moment you open the workspace it has already surfaced what needs a human call and can draft the exact action for you.
+- Your **Artificial Beings** line up in the workspace, each ready to take work in its area.
+- Open any one to **chat**, ask a question, or hand it a task. It answers from your live data and proposes actions you confirm.
 
-```python
-from agentmind import Memory
-
-memory = Memory(api_key="YOUR_API_KEY")
-```
-
-### Step 2: Create Memory Tools
-
-```python
-def remember_tool(content: str):
-    """Store important information"""
-    return memory.remember(content)
-
-def recall_tool(query: str):
-    """Search stored memories"""
-    return memory.recall(query)
-```
-
-### Step 3: Add to Your Agent
-
-```python
-# Add tools to your agent
-agent = YourAgent(
-    tools=[remember_tool, recall_tool]
-)
-
-# Agent remembers important context
-user: "I'm allergic to peanuts and love Italian food"
-agent: memory.remember("User allergic to peanuts, loves Italian food")
-
-user: "Book me a restaurant"
-agent: memory.recall("dietary restrictions and preferences")
-agent: "I found an Italian restaurant with a peanut-free menu"
-```
-
-## Real Chat Example
-
-```python
-from agentmind import Memory
-
-memory = Memory(api_key="YOUR_API_KEY")
-
-# Natural conversation with memory
-user: "I'm building a SaaS app"
-agent: memory.remember("Building a SaaS application")
-agent: "Great! What's your tech stack?"
-
-user: "Next.js and Supabase"
-agent: memory.remember("Tech stack: Next.js, Supabase")
-agent: "Nice modern stack. What features are you building?"
-
-user: "User auth and payments"
-agent: memory.remember("Working on: authentication, payments")
-agent: "For payments with Next.js, I recommend Stripe..."
-
-# Days later - agent remembers everything
-user: "How do I add subscriptions?"
-agent: memory.recall("tech stack payments")
-# Agent knows: Next.js, Supabase, working on payments
-agent: "Since you're using Next.js with Stripe, here's how to add subscriptions..."
-```
-
-## Natural Language Memory
-
-```python
-# Ask questions in plain English
-memory.recall("What did the user say about pricing?")
-memory.recall("Any bugs reported yesterday?")
-memory.recall("What's their tech stack?")
-memory.recall("Show me all customer complaints")
-
-# Memory understands context
-memory.remember("User wants to cancel subscription")
-later = memory.recall("cancellation requests")  # Finds it!
-
-# Store complex data
-memory.remember({
-    "customer": "acme_corp",
-    "plan": "enterprise",
-    "mrr": 5000
-})
-
-# Search naturally
-result = memory.recall("enterprise customers")
-# Returns the Acme Corp data
-```
-
-## Deploy as API (Agent Chat)
-
-Already configured your agent in LeedAB? Access it programmatically:
-
-```python
-import requests
-
-# Your agent with all its memories and tools, available via API
-response = requests.post(
-    "https://api.leedab.com/api/v1/agent/chat",
-    headers={"Authorization": "Bearer am_live_your_key"},
-    json={"message": "Summarize my recent meetings", "stream": False}
-)
-print(response.json()["response"])
-```
-
-### Multi-Tenant Apps
-
-Segment memories by end-user with `user_id`:
-
-```python
-# Each customer gets their own memory space
-response = requests.post(
-    "https://api.leedab.com/api/v1/agent/chat",
-    headers={"Authorization": "Bearer am_live_your_key"},
-    json={
-        "message": "Remember I prefer dark mode",
-        "user_id": "customer_123",  # Isolated memory space
-        "stream": False
-    }
-)
-
-# Later, same customer - agent recalls their preferences
-response = requests.post(
-    "https://api.leedab.com/api/v1/agent/chat",
-    headers={"Authorization": "Bearer am_live_your_key"},
-    json={
-        "message": "What are my preferences?",
-        "user_id": "customer_123",
-        "stream": False
-    }
-)
-# Returns: "You prefer dark mode"
-```
-
-### Streaming Responses
-
-```javascript
-// Real-time streaming with Server-Sent Events
-const response = await fetch('https://api.leedab.com/api/v1/agent/chat', {
-  method: 'POST',
-  headers: {
-    'Authorization': 'Bearer am_live_your_key',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({ message: "Help me debug this" })
-});
-
-const reader = response.body.getReader();
-// Process streaming events...
-```
-
-<Card title="Full Agent API Reference" icon="bolt" href="/api-reference/agent/chat">
-  See all endpoints: chat, info, conversations, messages
+<Card title="Next: how the pieces fit" icon="diagram-project" href="/essentials/workspaces">
+  Read about workspaces, Artificial Beings, the COO, and how governance keeps it all safe.
 </Card>
-
-## Framework Examples
-
-<CardGroup cols={2}>
-  <Card
-    title="OpenAI Functions"
-    icon="openai"
-    href="/essentials/openai-function-calling"
-  >
-    Memory tools for GPT function calling
-  </Card>
-  <Card
-    title="LangChain"
-    icon="link"
-    href="/essentials/langchain-integration"
-  >
-    Drop-in LangChain memory replacement
-  </Card>
-  <Card
-    title="Custom Agents"
-    icon="robot"
-    href="/essentials/agent-integration"
-  >
-    Build your own memory-powered agents
-  </Card>
-  <Card
-    title="More Examples"
-    icon="code"
-    href="/essentials/quick-examples"
-  >
-    Production-ready code examples
-  </Card>
-</CardGroup>

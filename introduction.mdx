@@ -1,146 +1,50 @@
 ---
 title: Introduction
-description: "Give your AI agents memory they control"
+description: "Artificial Beings that run your back office while you sleep."
 ---
 
-<img
-  className="block dark:hidden"
-  src="/images/hero-light.svg"
-  alt="Hero Light"
-/>
-<img
-  className="hidden dark:block"
-  src="/images/hero-dark.svg"
-  alt="Hero Dark"
-/>
+## What LeedAB is
 
-# LeedAB
+LeedAB is an AI operating system for your back office. You describe your business once, and LeedAB hires a team of **Artificial Beings** — specialist AI operators that do real work across your portals, inboxes, ERPs and spreadsheets.
 
-**Give your AI agents perfect memory.** LeedAB is a simple tool that lets your agents remember important information, learn from interactions, and maintain context across conversations.
-
-## The Problem
-
-AI agents forget everything between conversations. They can't learn from experience, track user preferences, or maintain context. You're stuck managing memory manually.
-
-## The Solution
-
-Add memory to your agent in 3 lines:
-
-```python
-# Add memory to any agent
-memory = Memory(api_key="YOUR_API_KEY")
-agent = YourAgent(
-    tools=[memory.remember, memory.recall]
-)
-
-# Agent remembers important context
-user: "I prefer morning meetings and hate video calls"
-agent: memory.remember("User prefers morning meetings, dislikes video calls")
-
-# Later, agent uses that knowledge
-user: "Schedule our sync"
-agent: memory.recall("meeting preferences")
-agent: "I'll schedule a morning audio call for you"
-```
-
-## Real Impact
+They are not a chatbot bolted onto a dashboard. Each Artificial Being has a job, takes actions, and reports back. A **COO** ties the team together and sits on every screen, surfacing what needs your decision and routing the work. And every action, whether a person clicked it or an Artificial Being proposed it, is governed and written to a tamper-evident audit trail.
 
 <CardGroup cols={2}>
-  <Card
-    title="Faster Support"
-    icon="clock"
-  >
-    Agents remember every customer interaction, past issues, and resolutions
+  <Card title="Workspaces" icon="building" href="/essentials/workspaces">
+    Each workspace is one company's operating system. Spin one up in about two minutes.
   </Card>
-  <Card
-    title="Better Development"
-    icon="rocket"
-  >
-    Code assistants remember your entire codebase context and patterns
+  <Card title="Artificial Beings" icon="robot" href="/essentials/artificial-beings">
+    The specialist operators you hire. Built-in or custom, each with a job and a code.
   </Card>
-  <Card
-    title="No Repetition"
-    icon="arrows-rotate"
-  >
-    Users never repeat themselves - agents remember everything relevant
+  <Card title="The COO" icon="compass" href="/essentials/the-coo">
+    The orchestrator that lives on every screen, surfaces decisions, and routes the work.
   </Card>
-  <Card
-    title="Self-Improving Agents"
-    icon="chart-line"
-  >
-    Agents learn from every interaction and get smarter over time
+  <Card title="Governance & audit" icon="shield-check" href="/essentials/governance">
+    Operators propose, you confirm. Authority is enforced server-side and every action is logged.
   </Card>
 </CardGroup>
 
-## 5-Minute Integration
+## How it works
 
-```python
-from agentmind import Memory
+<Steps>
+  <Step title="Describe your operation">
+    Tell LeedAB your role and what you spend most of your time on. It reads your operation and hires the right Artificial Beings for your industry, from a template or tailored to you.
+  </Step>
+  <Step title="Your team gets to work">
+    Your Artificial Beings land in a workspace, already briefed. They draft work, flag what needs a call, and act on what you approve.
+  </Step>
+  <Step title="You stay in command">
+    The COO surfaces the next move on every screen. You approve, redirect, or ask a question. Nothing consequential happens without a human confirm, and everything is on the record.
+  </Step>
+</Steps>
 
-# 1. Initialize memory
-memory = Memory(api_key="YOUR_API_KEY")
+## Why it is different
 
-# 2. Give your agent memory tools
-def remember_tool(content: str):
-    """Agent decides what to store"""
-    return memory.remember(content)
+- **It does the work, it does not just answer.** Artificial Beings take governed actions, not just replies.
+- **One brain, one set of numbers.** Every operator and every dashboard reads the same live data, so they always read the same numbers.
+- **Safe by construction.** An Artificial Being cannot exceed its authority. Authority is re-derived on the server, never taken from what the model says, so a hijacked or hallucinating operator cannot move money or push a change through on its own.
+- **Auditable end to end.** Every action lands in a hash-chained log you can filter, export, and lock by period. Exactly the evidence an auditor asks for.
 
-def recall_tool(query: str):
-    """Agent searches its memory"""
-    return memory.recall(query)
-
-# 3. Let your agent handle the rest
-agent = YourAgent(tools=[remember_tool, recall_tool])
-```
-
-## Deploy Your Agent as an API
-
-Already have your agent configured? Deploy it instantly with one API call:
-
-```python
-import requests
-
-# Chat with your agent via API
-response = requests.post(
-    "https://api.leedab.com/api/v1/agent/chat",
-    headers={"Authorization": "Bearer am_live_your_key"},
-    json={
-        "message": "What do you know about my project?",
-        "user_id": "customer_123",  # Segment memories per end-user
-        "stream": False
-    }
-)
-
-print(response.json()["response"])
-```
-
-Your agent has access to all your memories, custom tools, and web search - ready for production.
-
-## Who's Already Using It
-
-**Customer Support** → *"Our agents resolve tickets faster by remembering every customer's history"*
-
-**Dev Tools** → *"Code assistants that remember your entire project context and coding style"*
-
-**Sales Teams** → *"Every interaction remembered - better qualified leads and follow-ups"*
-
-**Healthcare** → *"Complete patient history at agents' fingertips for better care"*
-
-## Start Now
-
-<CardGroup cols={2}>
-  <Card
-    title="5-Minute Quickstart"
-    icon="bolt"
-    href="/quickstart"
-  >
-    Integration so simple, you'll be done before your coffee cools
-  </Card>
-  <Card
-    title="See It In Action"
-    icon="play"
-    href="/essentials/quick-examples"
-  >
-    Real agent examples you can run right now
-  </Card>
-</CardGroup>
+<Card title="Start in two minutes" icon="rocket" href="/quickstart">
+  Create your workspace, meet your Artificial Beings, and run your first action.
+</Card>
