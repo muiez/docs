@@ -1,27 +1,38 @@
 ---
-title: 'Artificial Beings'
-description: 'The specialist AI operators that do the work.'
+title: 'Operators'
+description: 'The specialist AI workers that do the work.'
 ---
 
-An **Artificial Being** (AB) is a specialist AI operator with a job. It does not just answer questions, it takes real work off your plate: reading your data, drafting actions, flagging what needs a decision, and acting on what you approve.
+An **operator** is a specialist AI worker with a job. It does not just answer questions, it takes real work off your plate: reading your data, drafting actions, flagging what needs a decision, and acting on what you approve.
 
-Each Artificial Being has a **name** and a short **code** so it reads cleanly across the console at a glance.
+<Note>
+  **One thing, several names.** In LeedAB, **operator**, **agent**, **Artificial Being (AB)**, and **your team** all refer to the same idea: a specialist AI worker with a job. "Artificial Being" is the brand name for the concept; "operator" is what we call it day to day in these docs and in the console.
+</Note>
+
+Each operator has a **name** and a short **code** (for example `COO`, `SLS`, `CFN`) so it reads cleanly across the console at a glance.
 
 ## Built-in and custom
 
-- **Built-in operators** ship with the templates and cover common back-office jobs.
+- **Built-in operators** ship with the templates and cover common back-office jobs. You can [browse the full roster](/operators).
 - **Custom operators** are tailored to your operation. The console treats built-in and custom operators the same way, so you work with your whole team through one interface.
 
 ## How a team is assembled
 
 During onboarding, LeedAB reads your role and your operation and hires a team to match. A template gives you a sensible starting set, and the team is tuned from there. A back-office team might include an operator that clears your inbox, one that reconciles invoices against your ERP, one that chases confirmations across your portals, and one that prepares your reporting.
 
-## What an Artificial Being can do
+## What an operator can do
 
 - **Read your live data** and answer from it, citing the same numbers the rest of the workspace shows.
 - **Propose actions** within its area, which you confirm before anything happens.
 - **Hand off** to the COO or another operator when a job crosses into their authority.
 
-<Card title="How the team is orchestrated" icon="compass" href="/essentials/the-coo">
-  The COO ties your Artificial Beings together and routes the work.
-</Card>
+Every operator works within a defined authority. What each one is allowed to propose or do is set by its role, and enforced on the server. See the [operator catalog](/operators) for the authority scope of each built-in operator.
+
+<CardGroup cols={2}>
+  <Card title="Browse the operators" icon="users" href="/operators">
+    Every built-in operator, its code, and what it is authorised to do.
+  </Card>
+  <Card title="How the team is orchestrated" icon="compass" href="/essentials/the-coo">
+    The COO ties your operators together and routes the work.
+  </Card>
+</CardGroup>

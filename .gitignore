@@ -1,0 +1,9 @@
+# Conductor session mechanics (not part of the docs)
+.conductor-launch.sh
+.conductor-prompt.txt
+.conductor-ready
+
+# Local tooling / scratch
+.playwright-mcp/
+.DS_Store
+node_modules/

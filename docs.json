@@ -4,8 +4,31 @@
   "name": "LeedAB",
   "colors": {
     "primary": "#3F73A0",
-    "light": "#5A8BB8",
-    "dark": "#2E5C84"
+    "light": "#6FA3C9",
+    "dark": "#1F4D7A"
+  },
+  "appearance": {
+    "default": "system"
+  },
+  "background": {
+    "decoration": "grid",
+    "color": {
+      "light": "#FAF9F6",
+      "dark": "#0B0A08"
+    }
+  },
+  "fonts": {
+    "heading": {
+      "family": "Geist",
+      "weight": 500
+    },
+    "body": {
+      "family": "Geist",
+      "weight": 400
+    }
+  },
+  "styling": {
+    "eyebrows": "section"
   },
   "favicon": "/favicon.svg",
   "navigation": {
@@ -33,6 +56,12 @@
           "essentials/working-with-abs",
           "essentials/sharing"
         ]
+      },
+      {
+        "group": "Reference",
+        "pages": [
+          "operators"
+        ]
       }
     ]
   },
@@ -49,8 +78,8 @@
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://leedab.com"
+      "label": "Open the console",
+      "href": "https://app.leedab.com"
     }
   },
   "search": {
@@ -58,12 +87,12 @@
   },
   "seo": {
     "metatags": {
-      "og:title": "LeedAB Docs - Artificial Beings that run your back office",
-      "og:description": "LeedAB hires a team of Artificial Beings that run your back office across your portals, inboxes, ERPs and spreadsheets. Every action is governed and audited.",
+      "og:title": "LeedAB Docs - operators that run your back office",
+      "og:description": "LeedAB hires a team of operators that run your back office across your portals, inboxes, ERPs and spreadsheets. Every action is governed and audited.",
       "og:image": "/images/og-image.png",
       "twitter:card": "summary_large_image",
       "twitter:title": "LeedAB Docs",
-      "twitter:description": "Artificial Beings that run your back office. Every action governed and audited."
+      "twitter:description": "Operators that run your back office. Every action governed and audited."
     },
     "indexing": "navigable"
   }

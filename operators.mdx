@@ -1,0 +1,96 @@
+---
+title: 'Operator catalog'
+description: 'Every built-in operator, its code, and what it is authorised to do.'
+---
+
+LeedAB ships with **34 built-in operators**. During onboarding, LeedAB hires the subset your role and industry actually need; the rest stay available, and you can add [custom operators](/essentials/artificial-beings) on top. This page is the reference: what each built-in operator does, its short code, and the scope of what it is allowed to do.
+
+<Note>
+  **Read the authority column literally.** What an operator can do depends on what is wired in your workspace. Many operators **draft and queue** work for a human to approve rather than sending, spending, or deploying it directly. Where that is the case, the authority column says so. An operator never exceeds its authority, and that limit is [enforced on the server](/essentials/governance), not in the prompt.
+</Note>
+
+<Frame caption="The operator dock: your team lines up along the bottom of the workspace. Open one to chat or hand off work. Product screenshot to follow.">
+  <img src="/images/placeholders/operator-dock.svg" alt="Placeholder for a screenshot of the operator dock" />
+</Frame>
+
+## Executive and orchestration
+
+| Operator | Code | What it does | Authority scope |
+|---|---|---|---|
+| COO | `COO` | Routes each request to the right operators and returns one answer, on every screen. | Reasons and synthesises; enforces approvals and workspace isolation; cannot act outside its remit. |
+| Concierge | `CON` | Runs your daily rhythm: briefs, calendar, travel, expenses, and meeting prep. | Drafts and surfaces only; does not book, buy, send, or transact. |
+
+## Customer lifecycle
+
+| Operator | Code | What it does | Authority scope |
+|---|---|---|---|
+| Delivery | `DEL` | Owns the client engagement from signature through the first 90 days. | Delegates to Solutions, Onboarding, and Implementation; escalates scope and pricing to founders. |
+| Solutions | `SOL` | Builds a working prospect demo in minutes from a short brief. | Writes a demo manifest to the prospect repo; auto-provisioning of custom operators is off by default. |
+| Onboarding | `ONB` | Drives a new client's first workflow live by Day 7, then through Day 90. | Drafts kickoff briefs and engagement plans; check-in scheduling depends on a wired calendar. |
+| Implementation | `IMP` | Custom integrations, data migrations, and bespoke workflows beyond the standard install. | Writes an implementation brief first; no auto-merge, Engineering and Delivery review. |
+| Champion | `CHM` | Coaches a named customer champion to self-sufficiency with their licensed operators. | Teaches rather than doing the work; escalates out-of-scope issues; stays within one customer. |
+| Customer Success | `CXS` | Health scoring, churn-save playbooks, and QBR prep that keep customers retained. | Scores and playbooks are recommendations a human runs; never invents a metric. |
+
+## Growth and marketing
+
+| Operator | Code | What it does | Authority scope |
+|---|---|---|---|
+| Marketing (lead) | `MKT` | Sets positioning and ICP and coordinates the growth operators. | Produces or coordinates drafts; cannot publish, the publish route is operator-only. |
+| Content | `CNT` | Long-form owned media: blogs, newsletters, case studies, comparisons. | Writes an SEO brief, then the draft; sources every number; cannot publish. |
+| Email | `EML` | Inbox triage, drafting, sequences, follow-ups, and the daily digest. | Drafts always; sends only behind a visible confirmation gate; cannot deploy to an ESP. |
+| Campaigns | `CMP` | Paid-acquisition briefs, ad copy variants, A/B tests, UTM taxonomy, kill criteria. | Plans only; cannot touch an ad platform or spend money. |
+| Brand | `BR` | Audits assets and copy for voice and visual consistency. | Reviews and briefs; does not execute visual fixes and is not the sign-off gate. |
+| Video | `VDO` | Scripts, storyboards, shot lists, and B-roll cues for short-form video. | Produces documents only; cannot film, edit, render, or publish. |
+
+## Sales and strategy
+
+| Operator | Code | What it does | Authority scope |
+|---|---|---|---|
+| Sales | `SLS` | Outreach, proposals, demo scripts, objection guides, and pipeline updates. | Drafts only; a human sends; every claim sourced from workspace context, not memory. |
+| Strategy | `STR` | Turns ambiguous questions into clear recommendations: GTM, pricing, roadmap, market sizing. | Recommends a path with the reasoning under it; ends with owned next steps. |
+| Research | `RES` | Cited answers: competitive intel, market sizing, prospect and background briefs. | Cites every non-common claim with a confidence level; never invents names or figures. |
+
+## Product and engineering
+
+| Operator | Code | What it does | Authority scope |
+|---|---|---|---|
+| Product | `PRD` | Turns ideas into buildable specs: PRDs, user stories, acceptance criteria, release notes. | Generates spec skeletons; recommends on prioritisation. |
+| Engineering (lead) | `ENG` | Architecture, ADRs, code review, and cross-cutting technical concerns. | Produces review and design output; not a deploy actor. |
+| Frontend | `FE` | React and Next.js component specs and implementation, accessible and performant. | Contract-first specs before implementation; design and code output. |
+| Backend | `BE` | Server-side design: APIs, data storage, auth, and streaming. | Produces endpoint and schema specs plus security reviews; no deploy. |
+| DevOps | `DVP` | CI/CD pipelines, Docker builds, monitoring, and incident runbooks. | Documentation and design output; not a live-deploy actor. |
+| Automation | `N8N` | Translates automation requests into n8n workflow blueprints and node designs. | Drafts blueprints and workflow JSON; cannot deploy to a live n8n instance. |
+
+## Operations and finance
+
+| Operator | Code | What it does | Authority scope |
+|---|---|---|---|
+| Ops | `OPS` | Process docs, support templates, vendor evaluation, and dispatch escalation briefs. | Drafts and surfaces; a human sends; cannot read a live TMS or dispatch queue. |
+| Procurement | `PRC` | Suppliers, purchase orders, freight sourcing, inventory, and supplier scoring. | Drafts PO briefs behind a required-checks gate; cannot act in supplier portals. |
+| People | `PPL` | Hiring, onboarding, leave, performance, and employee comms for SMBs. | Drafts JDs and rubrics; flags employment-law items for a lawyer; cannot post to an ATS. |
+| Finance | `CFN` | Runway, unit economics, and budget-vs-actuals models with explicit assumptions. | Analysis, not authorisation; labels every assumption; never moves money. |
+| Investor | `INV` | Pitch decks, investor updates, due-diligence prep, and fundraising strategy. | Structures the narrative; founders own the numbers; flags placeholder figures before anything is sent. |
+| Data | `DAT` | Measurement frameworks and cohort, funnel, and retention analysis specs. | Spec only, no direct database access; opens each analysis with a data-quality note. |
+| Legal | `LGL` | Contract templates, policies, and compliance documentation. | Drafts with a not-legal-advice frame; sign-off ends with qualified counsel; cannot send for signature. |
+| Compliance | `RSK` | Certifications, audit prep, insurance, and the operational risk register. | Scaffolds the work but does not certify; every claim points to a control and its evidence. |
+
+## Property
+
+<Note>
+  The three property operators run on their system prompt today, with no workspace-specific tools wired. They draft and advise; they do not act in external portals.
+</Note>
+
+| Operator | Code | What it does | Authority scope |
+|---|---|---|---|
+| Leasing | `LEA` | Fills rental vacancies: listings, inquiries, screening, lease prep, move-in. | Prompt only, no wired tools; fair-housing compliant; never promises unconfirmed terms. |
+| Property Manager | `PRP` | Runs units day to day: maintenance triage, vendors, inspections, renewals, compliance. | Prompt only, no wired tools; everything on the record; respects entry and notice law. |
+| Real Estate | `REI` | Comps, acquisition underwriting, portfolio performance, and refinance or sell signals. | Prompt only, no wired tools; every number shows its work; estimates, not an appraisal. |
+
+<CardGroup cols={2}>
+  <Card title="What an operator is" icon="robot" href="/essentials/artificial-beings">
+    Built-in and custom operators, and how a team is assembled.
+  </Card>
+  <Card title="How authority is enforced" icon="shield-check" href="/essentials/governance">
+    Why an operator cannot exceed the scope in the table above.
+  </Card>
+</CardGroup>

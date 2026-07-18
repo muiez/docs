@@ -1,0 +1,43 @@
+<svg viewBox="0 0 1280 720" width="1280" height="720" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder figure: Your operation, on one screen">
+  <defs>
+    <radialGradient id="orb" cx="50%" cy="42%" r="55%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="28%" stop-color="#EAF7FF"/>
+      <stop offset="62%" stop-color="#6FA3C9"/>
+      <stop offset="100%" stop-color="#6FA3C9" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse">
+      <path d="M64 0H0V64" fill="none" stroke="#6FA3C9" stroke-opacity="0.07" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0B0A08" stop-opacity="0.15"/>
+      <stop offset="60%" stop-color="#0B0A08" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="#0B0A08" stop-opacity="0.95"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="720" fill="#0B0A08"/>
+  <rect width="1280" height="720" fill="url(#grid)"/>
+  <rect width="1280" height="720" fill="url(#fade)"/>
+
+  <!-- window chrome -->
+  <rect x="16" y="16" width="1248" height="688" rx="14" fill="none" stroke="#6FA3C9" stroke-opacity="0.24"/>
+  <rect x="16" y="16" width="1248" height="46" rx="14" fill="#F5F0E6" fill-opacity="0.03"/>
+  <rect x="16" y="46" width="1248" height="16" fill="#F5F0E6" fill-opacity="0.03"/>
+  <circle cx="48" cy="39" r="5" fill="#B07878"/>
+  <circle cx="68" cy="39" r="5" fill="#D67B5E"/>
+  <circle cx="88" cy="39" r="5" fill="#7CA384"/>
+  <text x="640" y="44" text-anchor="middle" font-family="'Geist Mono', ui-monospace, Menlo, monospace" font-size="13" letter-spacing="2" fill="#F5F0E6" fill-opacity="0.32">app.leedab.com</text>
+
+  <!-- orb accent -->
+  <circle cx="640" cy="300" r="30" fill="url(#orb)"/>
+
+  <!-- labels -->
+  <text x="640" y="392" text-anchor="middle" font-family="'Geist Mono', ui-monospace, Menlo, monospace" font-size="15" letter-spacing="6" fill="#6FA3C9">LEEDAB CONSOLE</text>
+  <text x="640" y="446" text-anchor="middle" font-family="'Instrument Serif', Georgia, serif" font-style="italic" font-size="46" fill="#F5F0E6">Your operation, on one screen</text>
+  <text x="640" y="492" text-anchor="middle" font-family="'Geist Mono', ui-monospace, Menlo, monospace" font-size="13" letter-spacing="4" fill="#F5F0E6" fill-opacity="0.42">COO NAV &#183; OPERATOR DOCK &#183; LIVE DATA</text>
+
+  <!-- coming-soon tag -->
+  <rect x="524" y="536" width="232" height="34" rx="17" fill="none" stroke="#F5F0E6" stroke-opacity="0.2"/>
+  <text x="640" y="558" text-anchor="middle" font-family="'Geist Mono', ui-monospace, Menlo, monospace" font-size="12" letter-spacing="4" fill="#F5F0E6" fill-opacity="0.5">SCREENSHOT &#183; COMING SOON</text>
+</svg>
