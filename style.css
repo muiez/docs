@@ -1,0 +1,173 @@
+/* ==========================================================================
+   LeedAB docs :: OS Shell aesthetic.
+
+   Translated from the LeedAB OS console shell design system (the desktop
+   workspace shell tokens: background, ink, hairline, accent, and type stack).
+   The console reads as a desktop operating system: Instrument Serif italic
+   display marks, Geist body, Geist Mono uppercase eyebrows, a steel-blue
+   accent, hairline borders, small radii, pill controls, and a faint grid
+   field. These rules bring that same voice to the Mintlify docs.
+
+   Palette source of truth (do not swap for the marketing paper/copper set):
+     accent (light)  #3F73A0   accent-2 (light)  #1F4D7A
+     accent (dark)   #6FA3C9   accent-2 (dark)   #3F73A0
+     ink  (light)    #15130E   bg (light)  #FAF9F6
+     ink  (dark)     #F5F0E6   bg (dark)   #0B0A08
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap');
+
+:root {
+  --os-accent:   #3F73A0;
+  --os-accent-2: #1F4D7A;
+  --os-ink:      #15130E;
+  --os-hair:     #E8E5DE;
+  --os-serif:    'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --os-mono:     'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+.dark {
+  --os-accent:   #6FA3C9;
+  --os-accent-2: #3F73A0;
+  --os-ink:      #F5F0E6;
+  --os-hair:     #26231D;
+}
+
+/* --- Signature display type -------------------------------------------------
+   The OS marks every workspace with an Instrument Serif italic title. Give the
+   page H1 the same treatment. There is one H1 per docs page (the title), so a
+   global rule is safe and does not touch nav or sidebar chrome. */
+h1 {
+  font-family: var(--os-serif) !important;
+  font-style: italic !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.08 !important;
+}
+
+/* Section headings stay in Geist for scannability, matching the console's
+   prose headings, but tighten them the way the shell does. */
+h2, h3, h4 {
+  letter-spacing: -0.01em;
+}
+
+/* --- Eyebrows and small labels ---------------------------------------------
+   The shell sets every eyebrow in Geist Mono, uppercase, wide-tracked. */
+.eyebrow,
+[class*="eyebrow"] {
+  font-family: var(--os-mono) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.18em !important;
+  font-size: 0.68rem !important;
+  font-weight: 500 !important;
+}
+
+/* --- Links ------------------------------------------------------------------ */
+.prose a,
+article a {
+  text-underline-offset: 3px;
+}
+
+/* --- Inline code + code blocks ---------------------------------------------
+   The shell renders code in Geist Mono with a faint accent tint and a hairline,
+   never a heavy filled chip. */
+code {
+  font-family: var(--os-mono) !important;
+}
+
+.prose :not(pre) > code,
+article :not(pre) > code {
+  font-size: 0.86em !important;
+  padding: 0.1em 0.4em !important;
+  border-radius: 3px !important;
+  border: 1px solid color-mix(in oklab, var(--os-accent) 32%, transparent) !important;
+  background: color-mix(in oklab, var(--os-accent) 9%, transparent) !important;
+  color: var(--os-accent) !important;
+}
+
+/* --- Blockquotes -----------------------------------------------------------
+   Editorial serif-italic pull with an accent rule, as in the OS canvas prose. */
+blockquote {
+  font-family: var(--os-serif) !important;
+  font-style: italic !important;
+  font-size: 1.12em !important;
+  border-left: 2px solid var(--os-accent) !important;
+}
+
+/* --- Tables ----------------------------------------------------------------
+   Mono, uppercase, wide-tracked column headers, the shell's table voice. */
+th {
+  font-family: var(--os-mono) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  font-size: 0.72rem !important;
+  font-weight: 500 !important;
+}
+
+/* --- Cards -----------------------------------------------------------------
+   Thin hairline, small radius, quiet lift on hover, OS panel behaviour. */
+a[href] > div[class*="card"],
+div[class*="card"],
+.card {
+  border-radius: 8px !important;
+  transition: border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+div[class*="card"]:hover,
+.card:hover {
+  border-color: color-mix(in oklab, var(--os-accent) 45%, transparent) !important;
+  transform: translateY(-1px);
+}
+
+/* --- Primary CTA button ----------------------------------------------------
+   The shell's action controls are pill-shaped with wide-tracked labels. Scope
+   to the top-bar primary button so body links are untouched. */
+#navbar a[class*="primary"],
+header a[class*="primary"],
+nav a[class*="primary"] {
+  border-radius: 999px !important;
+  letter-spacing: 0.02em;
+  font-weight: 500 !important;
+}
+
+/* --- Selection -------------------------------------------------------------- */
+::selection {
+  background: color-mix(in oklab, var(--os-accent) 26%, transparent);
+}
+
+/* --- Scrollbar: thin, ink-tinted, mostly invisible (shell behaviour) -------- */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--os-ink) 16%, transparent);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklab, var(--os-ink) 30%, transparent);
+  background-clip: padding-box;
+}
+
+/* --- Operator catalog helpers ----------------------------------------------
+   Small mono "code" chip used beside operator names in the roster tables and
+   cards, mirroring the console's .metrics-code token style. */
+.op-code {
+  font-family: var(--os-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72em;
+  color: var(--os-accent);
+  border: 1px solid color-mix(in oklab, var(--os-accent) 32%, transparent);
+  border-radius: 999px;
+  padding: 0.08em 0.5em;
+  white-space: nowrap;
+}
+
+/* Figure placeholder frames (structure for the product-screenshot shoot). */
+.figure-slot {
+  font-family: var(--os-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.7rem;
+  color: color-mix(in oklab, var(--os-ink) 55%, transparent);
+}
